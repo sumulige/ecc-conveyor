@@ -4,6 +4,7 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 
 const { runKernel } = require('./kernel');
+const { validateRepoInfoOutput } = require('./kernel-contract');
 
 function runGit(args, opts = {}) {
   const res = spawnSync('git', args, {
@@ -123,9 +124,34 @@ function commitAll({ repoRoot, message }) {
   return sha;
 }
 
+function getRepoInfo(cwd) {
+  const kernelOut = runKernel('repo.info', { cwd });
+  if (kernelOut !== null) {
+    const errors = validateRepoInfoOutput(kernelOut);
+    if (errors.length) {
+      throw new Error(`ecc-kernel repo.info returned invalid output: ${errors.join('; ')}`);
+    }
+    return kernelOut;
+  }
+
+  const repoRoot = getRepoRoot(cwd);
+  if (!repoRoot) {
+    return { version: 1, repoRoot: null, branch: '', sha: '', clean: false };
+  }
+
+  return {
+    version: 1,
+    repoRoot,
+    branch: getCurrentBranch(repoRoot),
+    sha: getHeadSha(repoRoot),
+    clean: isClean(repoRoot)
+  };
+}
+
 module.exports = {
   runGit,
   getRepoRoot,
+  getRepoInfo,
   getHeadSha,
   getCurrentBranch,
   isClean,

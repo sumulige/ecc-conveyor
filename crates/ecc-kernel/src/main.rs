@@ -7,6 +7,17 @@ use std::process::{Command, ExitCode, Stdio};
 use time::format_description::well_known::Rfc3339;
 use time::OffsetDateTime;
 
+const PROTOCOL_VERSION: i32 = 1;
+const COMMANDS: &[&str] = &[
+    "worktree.ensure",
+    "worktree.remove",
+    "patch.apply",
+    "git.commit_all",
+    "verify.run",
+    "protocol.version",
+    "repo.info",
+];
+
 fn now_iso() -> String {
     OffsetDateTime::now_utc()
         .format(&Rfc3339)
@@ -503,6 +514,127 @@ fn commit_all(input: CommitAllIn) -> Result<CommitAllOut, String> {
 }
 
 #[derive(Deserialize)]
+struct ProtocolVersionIn {}
+
+#[derive(Serialize)]
+struct ProtocolVersionOut {
+    version: i32,
+    protocol: i32,
+    kernelVersion: String,
+    commands: Vec<String>,
+}
+
+fn protocol_version(_input: ProtocolVersionIn) -> Result<ProtocolVersionOut, String> {
+    Ok(ProtocolVersionOut {
+        version: 1,
+        protocol: PROTOCOL_VERSION,
+        kernelVersion: env!("CARGO_PKG_VERSION").to_string(),
+        commands: COMMANDS.iter().map(|s| s.to_string()).collect(),
+    })
+}
+
+#[derive(Deserialize)]
+struct RepoInfoIn {
+    cwd: String,
+}
+
+#[derive(Serialize)]
+struct RepoInfoOut {
+    version: i32,
+    repoRoot: Option<String>,
+    branch: String,
+    sha: String,
+    clean: bool,
+}
+
+fn repo_info(input: RepoInfoIn) -> Result<RepoInfoOut, String> {
+    let cwd = PathBuf::from(input.cwd);
+
+    let out_root = run_git(
+        &vec![
+            "-C".to_string(),
+            cwd.display().to_string(),
+            "rev-parse".to_string(),
+            "--show-toplevel".to_string(),
+        ],
+        None,
+    )?;
+
+    if !out_root.ok {
+        return Ok(RepoInfoOut {
+            version: 1,
+            repoRoot: None,
+            branch: "".to_string(),
+            sha: "".to_string(),
+            clean: false,
+        });
+    }
+
+    let repo_root = out_root.stdout.trim().to_string();
+
+    let out_branch = run_git(
+        &vec![
+            "-C".to_string(),
+            repo_root.clone(),
+            "rev-parse".to_string(),
+            "--abbrev-ref".to_string(),
+            "HEAD".to_string(),
+        ],
+        None,
+    )?;
+    if !out_branch.ok {
+        return Err(out_branch
+            .stderr
+            .is_empty()
+            .then(|| "git rev-parse --abbrev-ref HEAD failed".to_string())
+            .unwrap_or(out_branch.stderr));
+    }
+
+    let out_sha = run_git(
+        &vec![
+            "-C".to_string(),
+            repo_root.clone(),
+            "rev-parse".to_string(),
+            "HEAD".to_string(),
+        ],
+        None,
+    )?;
+    if !out_sha.ok {
+        return Err(out_sha
+            .stderr
+            .is_empty()
+            .then(|| "git rev-parse HEAD failed".to_string())
+            .unwrap_or(out_sha.stderr));
+    }
+
+    let out_status = run_git(
+        &vec![
+            "-C".to_string(),
+            repo_root.clone(),
+            "status".to_string(),
+            "--porcelain".to_string(),
+            "--untracked-files=no".to_string(),
+        ],
+        None,
+    )?;
+    if !out_status.ok {
+        return Err(out_status
+            .stderr
+            .is_empty()
+            .then(|| "git status --porcelain failed".to_string())
+            .unwrap_or(out_status.stderr));
+    }
+
+    Ok(RepoInfoOut {
+        version: 1,
+        repoRoot: Some(repo_root),
+        branch: out_branch.stdout.trim().to_string(),
+        sha: out_sha.stdout.trim().to_string(),
+        clean: out_status.stdout.trim().is_empty(),
+    })
+}
+
+#[derive(Deserialize)]
 struct VerifyCmdIn {
     name: String,
     command: String,
@@ -628,6 +760,7 @@ fn verify_run(input: VerifyRunIn) -> Result<VerifySummaryOut, String> {
 }
 
 fn usage() {
+    let cmds = COMMANDS.join("\n  ");
     eprintln!(
         r#"ecc-kernel
 
@@ -635,12 +768,10 @@ Usage:
   ecc-kernel <command>   (JSON input on stdin; JSON output on stdout)
 
 Commands:
-  worktree.ensure
-  worktree.remove
-  patch.apply
-  git.commit_all
-  verify.run
+  {cmds}
 "#
+        ,
+        cmds = cmds
     );
 }
 
@@ -686,6 +817,16 @@ fn real_main() -> Result<(), String> {
       let out = commit_all(input)?;
       write_stdout_json(&out)
     }
+    "protocol.version" => {
+      let input: ProtocolVersionIn = read_stdin_json()?;
+      let out = protocol_version(input)?;
+      write_stdout_json(&out)
+    }
+    "repo.info" => {
+      let input: RepoInfoIn = read_stdin_json()?;
+      let out = repo_info(input)?;
+      write_stdout_json(&out)
+    }
     "verify.run" => {
       let input: VerifyRunIn = read_stdin_json()?;
       let out = verify_run(input)?;
@@ -707,4 +848,112 @@ fn main() -> ExitCode {
       ExitCode::from(1)
     }
   }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn tmp_dir(prefix: &str) -> PathBuf {
+        let mut dir = std::env::temp_dir();
+        dir.push(format!(
+            "{}-{}-{}",
+            prefix,
+            std::process::id(),
+            OffsetDateTime::now_utc().unix_timestamp_nanos()
+        ));
+        dir
+    }
+
+    fn git(repo: &Path, args: &[&str]) -> Result<CmdOut, String> {
+        let mut v: Vec<String> = Vec::new();
+        v.push("-C".to_string());
+        v.push(repo.display().to_string());
+        for a in args {
+            v.push(a.to_string());
+        }
+        run_git(&v, None)
+    }
+
+    fn init_git_repo(repo: &Path) -> Result<(), String> {
+        fs::create_dir_all(repo).map_err(|e| format!("mkdir failed: {e}"))?;
+        let out = git(repo, &["init"])?;
+        if !out.ok {
+            return Err(out.stderr);
+        }
+
+        // Ensure commits work in CI.
+        let _ = git(repo, &["config", "user.email", "ecc@example.com"])?;
+        let _ = git(repo, &["config", "user.name", "ECC"])?;
+
+        fs::write(repo.join("base.txt"), "base\n").map_err(|e| format!("write failed: {e}"))?;
+        let out_add = git(repo, &["add", "-A"])?;
+        if !out_add.ok {
+            return Err(out_add.stderr);
+        }
+        let out_commit = git(repo, &["commit", "-m", "init"])?;
+        if !out_commit.ok {
+            return Err(out_commit.stderr);
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn protocol_version_has_required_fields() {
+        let out = protocol_version(ProtocolVersionIn {}).unwrap();
+        assert_eq!(out.version, 1);
+        assert_eq!(out.protocol, PROTOCOL_VERSION);
+        assert!(!out.kernelVersion.trim().is_empty());
+
+        let cmds: std::collections::BTreeSet<String> = out.commands.into_iter().collect();
+        for c in COMMANDS.iter() {
+            assert!(cmds.contains(&c.to_string()), "missing command: {c}");
+        }
+    }
+
+    #[test]
+    fn repo_info_returns_repo_details_and_cleanliness() {
+        let dir = tmp_dir("ecc-kernel-test-repo");
+        let res = init_git_repo(&dir);
+        assert!(res.is_ok(), "init_git_repo failed: {:?}", res.err());
+
+        let info = repo_info(RepoInfoIn {
+            cwd: dir.display().to_string(),
+        })
+        .unwrap();
+
+        assert_eq!(info.version, 1);
+        let got_root = info.repoRoot.clone().unwrap();
+        let expected_abs = fs::canonicalize(&dir).unwrap();
+        let got_abs = fs::canonicalize(std::path::Path::new(&got_root)).unwrap();
+        assert_eq!(got_abs, expected_abs);
+        assert!(!info.branch.trim().is_empty());
+        assert_eq!(info.sha.len(), 40);
+        assert_eq!(info.clean, true);
+
+        // Modifying a tracked file should mark repo as dirty.
+        fs::write(dir.join("base.txt"), "changed\n").unwrap();
+        let info2 = repo_info(RepoInfoIn {
+            cwd: dir.display().to_string(),
+        })
+        .unwrap();
+        assert_eq!(info2.clean, false);
+
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn repo_info_outside_repo_is_null() {
+        let dir = tmp_dir("ecc-kernel-test-norepo");
+        fs::create_dir_all(&dir).unwrap();
+
+        let info = repo_info(RepoInfoIn {
+            cwd: dir.display().to_string(),
+        })
+        .unwrap();
+        assert_eq!(info.version, 1);
+        assert!(info.repoRoot.is_none());
+
+        let _ = fs::remove_dir_all(&dir);
+    }
 }

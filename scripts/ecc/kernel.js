@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
 
+const { EXPECTED_PROTOCOL, validateProtocolVersionOutput } = require('./kernel-contract');
+
 function isFile(p) {
   try {
     return fs.statSync(p).isFile();
@@ -47,36 +49,139 @@ function tryKernelFromPath() {
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe']
   });
-  if (res.error) return null;
-  if (res.status === 0) return 'ecc-kernel';
-  return null;
+  if (res.error) {
+    // ENOENT means not on PATH; treat as no candidate.
+    if (res.error && res.error.code === 'ENOENT') return null;
+    // Other spawn errors still indicate an attemptable candidate (will be probed for a better error).
+    return 'ecc-kernel';
+  }
+  return 'ecc-kernel';
 }
 
-function findKernelBinary() {
+function runKernelJson(bin, command, inputObj) {
+  const res = spawnSync(bin, [command], {
+    encoding: 'utf8',
+    input: JSON.stringify(inputObj || {}),
+    stdio: ['pipe', 'pipe', 'pipe']
+  });
+
+  if (res.error) return { ok: false, error: `spawn failed: ${res.error.message}` };
+  const stdout = (res.stdout || '').trim();
+  const stderr = (res.stderr || '').trim();
+
+  if (res.status !== 0) {
+    const detail = stderr ? `stderr: ${stderr}` : (stdout ? `stdout: ${stdout}` : '');
+    return { ok: false, error: `exit ${res.status}${detail ? ` (${detail})` : ''}` };
+  }
+
+  if (!stdout) return { ok: false, error: 'empty stdout' };
+  try {
+    return { ok: true, value: JSON.parse(stdout) };
+  } catch (err) {
+    const msg = err && err.message ? err.message : String(err);
+    return { ok: false, error: `non-JSON stdout (${msg})` };
+  }
+}
+
+function probeKernel(bin) {
+  const res = runKernelJson(bin, 'protocol.version', {});
+  if (!res.ok) return { ok: false, error: `protocol.version failed: ${res.error}` };
+
+  const errors = validateProtocolVersionOutput(res.value, { expectedProtocol: EXPECTED_PROTOCOL });
+  if (errors.length) {
+    return { ok: false, error: `invalid protocol.version output: ${errors.join('; ')}` };
+  }
+
+  return {
+    ok: true,
+    protocol: res.value.protocol,
+    kernelVersion: res.value.kernelVersion,
+    commands: res.value.commands
+  };
+}
+
+function candidateList() {
+  const candidates = [];
+
   if (process.env.ECC_KERNEL_PATH) {
-    const p = path.resolve(String(process.env.ECC_KERNEL_PATH));
-    if (isFile(p)) return p;
+    candidates.push({
+      label: 'ECC_KERNEL_PATH',
+      bin: path.resolve(String(process.env.ECC_KERNEL_PATH)),
+      requiresFile: true,
+      explicit: true
+    });
   }
 
   // Preferred location for prebuilt binaries installed via postinstall.
   const key = platformArchKey();
   if (key) {
-    const packaged = path.join(__dirname, 'bin', key, binName());
-    if (isFile(packaged)) return packaged;
+    candidates.push({
+      label: 'package',
+      bin: path.join(__dirname, 'bin', key, binName()),
+      requiresFile: true,
+      explicit: false
+    });
   }
 
+  // PATH lookup.
   const fromPath = tryKernelFromPath();
-  if (fromPath) return fromPath;
-
-  const root = path.resolve(__dirname, '..', '..');
-  const candidates = [
-    path.join(root, 'crates', 'ecc-kernel', 'target', 'release', binName()),
-    path.join(root, 'crates', 'ecc-kernel', 'target', 'debug', binName())
-  ];
-  for (const p of candidates) {
-    if (isFile(p)) return p;
+  if (fromPath) {
+    candidates.push({ label: 'PATH', bin: fromPath, requiresFile: false, explicit: false });
   }
-  return null;
+
+  // Local dev build (repo).
+  const root = path.resolve(__dirname, '..', '..');
+  candidates.push({
+    label: 'repo-release',
+    bin: path.join(root, 'crates', 'ecc-kernel', 'target', 'release', binName()),
+    requiresFile: true,
+    explicit: false
+  });
+  candidates.push({
+    label: 'repo-debug',
+    bin: path.join(root, 'crates', 'ecc-kernel', 'target', 'debug', binName()),
+    requiresFile: true,
+    explicit: false
+  });
+
+  const seen = new Set();
+  return candidates.filter(c => {
+    if (seen.has(c.bin)) return false;
+    seen.add(c.bin);
+    return true;
+  });
+}
+
+function selectCompatibleKernel({ mode }) {
+  const candidates = candidateList();
+  const errors = [];
+
+  for (const c of candidates) {
+    if (c.requiresFile && !isFile(c.bin)) {
+      if (c.explicit && mode === 'rust') {
+        throw new Error(`ECC kernel required but ECC_KERNEL_PATH is not a file: ${c.bin}`);
+      }
+      continue;
+    }
+
+    const probe = probeKernel(c.bin);
+    if (probe.ok) return { enabled: true, bin: c.bin, ...probe };
+
+    errors.push(`${c.label}: ${probe.error}`);
+    if (c.explicit && mode === 'rust') break;
+  }
+
+  if (mode === 'rust') {
+    const detail = errors.length ? `\n\nHandshake errors:\n- ${errors.join('\n- ')}` : '';
+    throw new Error(
+      'ECC kernel required but not found or incompatible.\n' +
+        'Install or build a compatible ecc-kernel, then re-run, or set ECC_KERNEL=node to force JS fallback.' +
+        detail
+    );
+  }
+
+  // mode=auto: fall back to JS. If we saw a kernel but it was incompatible, keep the reason for doctor output.
+  return { enabled: false, bin: null, reason: errors.length ? errors[0] : null };
 }
 
 let _cached = null;
@@ -86,20 +191,25 @@ function getKernel() {
 
   const mode = getKernelMode();
   if (mode === 'node') {
-    _cached = { mode, enabled: false, bin: null };
+    _cached = { mode, enabled: false, bin: null, reason: null };
     return _cached;
   }
 
-  const bin = findKernelBinary();
-  if (mode === 'rust' && !bin) {
-    throw new Error(
-      'ECC kernel required but not found. Build it with:\n' +
-        '  cargo build --release --manifest-path crates/ecc-kernel/Cargo.toml\n' +
-        'Then re-run, or set ECC_KERNEL=node to force JS fallback.'
-    );
+  const selected = selectCompatibleKernel({ mode });
+  if (!selected.enabled) {
+    _cached = { mode, enabled: false, bin: null, reason: selected.reason };
+    return _cached;
   }
 
-  _cached = { mode, enabled: !!bin, bin };
+  _cached = {
+    mode,
+    enabled: true,
+    bin: selected.bin,
+    protocol: selected.protocol,
+    kernelVersion: selected.kernelVersion,
+    commands: selected.commands,
+    reason: null
+  };
   return _cached;
 }
 
@@ -140,5 +250,6 @@ function runKernel(command, inputObj) {
 
 module.exports = {
   getKernel,
-  runKernel
+  runKernel,
+  validateProtocolVersionOutput
 };

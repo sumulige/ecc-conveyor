@@ -82,7 +82,8 @@ Environment:
 
 function resolveProjectRoot(cwd) {
   try {
-    return git.getRepoRoot(cwd) || cwd;
+    const info = git.getRepoInfo(cwd);
+    return info && info.repoRoot ? info.repoRoot : cwd;
   } catch (_err) {
     return cwd;
   }
@@ -181,8 +182,15 @@ function cmdDoctor() {
 
   try {
     const k = kernel.getKernel();
-    const detail = k.enabled ? `rust (${k.bin})` : 'js fallback';
-    checks.push({ name: 'kernel', ok: true, detail });
+    if (k.enabled) {
+      const proto = k.protocol !== undefined ? ` protocol=${k.protocol}` : '';
+      const ver = k.kernelVersion ? ` kernelVersion=${k.kernelVersion}` : '';
+      checks.push({ name: 'kernel', ok: true, detail: `rust (${k.bin})${proto}${ver}` });
+    } else if (k.reason) {
+      checks.push({ name: 'kernel', ok: false, detail: `BAD (${k.reason})` });
+    } else {
+      checks.push({ name: 'kernel', ok: true, detail: 'js fallback' });
+    }
   } catch (err) {
     const msg = err && err.message ? err.message : String(err);
     checks.push({ name: 'kernel', ok: false, detail: msg });
@@ -191,20 +199,24 @@ function cmdDoctor() {
   const gitVer = runCmd('git', ['--version']);
   checks.push({ name: 'git', ok: gitVer.ok, detail: gitVer.ok ? gitVer.stdout : gitVer.stderr });
 
-  const repoRoot = gitVer.ok ? git.getRepoRoot(projectRoot) : null;
-  checks.push({ name: 'repo', ok: !!repoRoot, detail: repoRoot ? repoRoot : 'not a git repo' });
-
-  if (repoRoot) {
-    let clean = false;
-    let detail = '';
+  if (gitVer.ok) {
+    let info = null;
     try {
-      clean = git.isClean(repoRoot);
-      detail = clean ? 'clean' : 'dirty';
+      info = git.getRepoInfo(projectRoot);
+      checks.push({
+        name: 'repo',
+        ok: !!info.repoRoot,
+        detail: info.repoRoot ? info.repoRoot : 'not a git repo'
+      });
+      if (info.repoRoot) {
+        checks.push({ name: 'clean', ok: !!info.clean, detail: info.clean ? 'clean' : 'dirty' });
+      }
     } catch (err) {
-      clean = false;
-      detail = err && err.message ? err.message : String(err);
+      const msg = err && err.message ? err.message : String(err);
+      checks.push({ name: 'repo', ok: false, detail: msg });
     }
-    checks.push({ name: 'clean', ok: clean, detail });
+  } else {
+    checks.push({ name: 'repo', ok: false, detail: 'git not available' });
   }
 
   const codex = runCmd('codex', ['--version']);
@@ -266,9 +278,9 @@ async function cmdPlan(args) {
   const runIdBase = requestedRunId || idMod.defaultRunId(intent);
   const runId = requestedRunId ? idMod.ensureUniqueRunId(projectRoot, requestedRunId) : idMod.ensureUniqueRunId(projectRoot, runIdBase);
 
-  const repoRoot = git.getRepoRoot(projectRoot);
-  const base = repoRoot
-    ? { repoRoot, branch: git.getCurrentBranch(repoRoot), sha: git.getHeadSha(repoRoot) }
+  const info = git.getRepoInfo(projectRoot);
+  const base = info.repoRoot
+    ? { repoRoot: info.repoRoot, branch: info.branch, sha: info.sha }
     : { repoRoot: projectRoot, branch: '', sha: '' };
 
   const { run } = runMod.initRun({
@@ -381,7 +393,8 @@ function cmdVerify(args) {
       );
     }
 
-    const repoRoot = git.getRepoRoot(projectRoot);
+    const info = git.getRepoInfo(projectRoot);
+    const repoRoot = info.repoRoot;
     if (!repoRoot) throw new Error('verify: requires a git repository');
 
     const wt = git.ensureWorktree({
@@ -427,9 +440,9 @@ async function cmdRun(args) {
   const runIdBase = requestedRunId || idMod.defaultRunId(intent);
   const runId = requestedRunId ? idMod.ensureUniqueRunId(projectRoot, requestedRunId) : idMod.ensureUniqueRunId(projectRoot, runIdBase);
 
-  const repoRoot = git.getRepoRoot(projectRoot);
-  const base = repoRoot
-    ? { repoRoot, branch: git.getCurrentBranch(repoRoot), sha: git.getHeadSha(repoRoot) }
+  const info = git.getRepoInfo(projectRoot);
+  const base = info.repoRoot
+    ? { repoRoot: info.repoRoot, branch: info.branch, sha: info.sha }
     : { repoRoot: projectRoot, branch: '', sha: '' };
 
   const { run } = runMod.initRun({

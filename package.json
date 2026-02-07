@@ -1,6 +1,6 @@
 {
   "name": "everything-claude-code",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "description": "Everything Claude Code + ECC (Engineering Change Conveyor) CLI",
   "license": "MIT",
   "repository": {
@@ -27,6 +27,8 @@
     "schemas/",
     "prompts/ecc/",
     "docs/ecc.md",
+    "docs/ecc-release.md",
+    "docs/ecc-kernel-protocol.md",
     "README.md",
     "LICENSE"
   ],

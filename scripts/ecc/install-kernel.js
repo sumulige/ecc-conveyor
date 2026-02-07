@@ -21,6 +21,8 @@ const crypto = require('crypto');
 const { spawnSync } = require('child_process');
 const { URL } = require('url');
 
+const { EXPECTED_PROTOCOL, validateProtocolVersionOutput } = require('./kernel-contract');
+
 function debugEnabled() {
   return !!(process.env.ECC_KERNEL_DEBUG && String(process.env.ECC_KERNEL_DEBUG).trim());
 }
@@ -247,6 +249,34 @@ function validateRuns(filePath) {
   }
 }
 
+function validateProtocol(filePath) {
+  const res = spawnSync(filePath, ['protocol.version'], {
+    encoding: 'utf8',
+    input: '{}',
+    stdio: ['pipe', 'pipe', 'pipe']
+  });
+  if (res.error) throw new Error(`kernel protocol.version failed: ${res.error.message}`);
+  if (res.status !== 0) {
+    const stderr = (res.stderr || '').trim();
+    throw new Error(`kernel protocol.version failed (exit ${res.status})${stderr ? `: ${stderr}` : ''}`);
+  }
+
+  const stdout = (res.stdout || '').trim();
+  if (!stdout) throw new Error('kernel protocol.version returned empty output');
+
+  let obj;
+  try {
+    obj = JSON.parse(stdout);
+  } catch (_err) {
+    throw new Error('kernel protocol.version returned non-JSON output');
+  }
+
+  const errors = validateProtocolVersionOutput(obj, { expectedProtocol: EXPECTED_PROTOCOL });
+  if (errors.length) {
+    throw new Error(`kernel protocol.version invalid: ${errors.join('; ')}`);
+  }
+}
+
 async function main() {
   const { mode, envSet } = parseInstallMode();
   if (mode === 'off') return;
@@ -273,7 +303,15 @@ async function main() {
 
   if (fs.existsSync(destBin)) {
     logDebug(`kernel already present: ${destBin}`);
-    return;
+    try {
+      ensureExecutable(destBin);
+      validateRuns(destBin);
+      validateProtocol(destBin);
+      return;
+    } catch (err) {
+      logDebug(`existing kernel invalid/outdated, reinstalling: ${err.message}`);
+      try { fs.rmSync(destBin, { force: true }); } catch (_err) { /* ignore */ }
+    }
   }
 
   const baseUrl = defaultBaseUrl(version, pkg);
@@ -327,6 +365,7 @@ async function main() {
     }
 
     validateRuns(destBin);
+    validateProtocol(destBin);
   } catch (err) {
     try { fs.rmSync(destBin, { force: true }); } catch (_err) { /* ignore */ }
     if (mode === 'required') throw err;
