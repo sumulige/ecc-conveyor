@@ -27,7 +27,6 @@ function debugEnabled() {
 
 function logDebug(msg) {
   if (debugEnabled()) {
-    // eslint-disable-next-line no-console
     console.error(`[ecc-kernel] ${msg}`);
   }
 }
@@ -193,7 +192,7 @@ async function downloadToFile(url, destPath, { headers, timeoutMs } = {}) {
 
     fs.mkdirSync(path.dirname(destPath), { recursive: true });
     const tmpPath = `${destPath}.tmp`;
-    try { fs.rmSync(tmpPath, { force: true }); } catch (_err) {}
+    try { fs.rmSync(tmpPath, { force: true }); } catch (_err) { /* ignore */ }
 
     await new Promise((resolve, reject) => {
       const out = fs.createWriteStream(tmpPath);
@@ -329,20 +328,17 @@ async function main() {
 
     validateRuns(destBin);
   } catch (err) {
-    try { fs.rmSync(destBin, { force: true }); } catch (_err) {}
+    try { fs.rmSync(destBin, { force: true }); } catch (_err) { /* ignore */ }
     if (mode === 'required') throw err;
     logDebug(`downloaded kernel invalid, removed: ${err.message}`);
     return;
   }
 
-  // eslint-disable-next-line no-console
   console.error(`ecc: installed ecc-kernel (${target.os}-${target.cpu})`);
 }
 
 main().catch(err => {
   const msg = err && err.message ? err.message : String(err);
-  // eslint-disable-next-line no-console
   console.error(`ecc: kernel install failed: ${msg}`);
   process.exit(1);
 });
-

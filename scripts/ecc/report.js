@@ -1,5 +1,4 @@
 const fs = require('fs');
-const path = require('path');
 
 const { readJson, writeText } = require('./json');
 const { runPaths } = require('./run');
@@ -126,4 +125,3 @@ module.exports = {
   writeReport,
   buildReport
 };
-

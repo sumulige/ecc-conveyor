@@ -46,7 +46,7 @@ function runTests() {
         '--- /dev/null',
         '+++ b/src/hello.txt',
         '@@ -0,0 +1,2 @@',
-        '+console.log(\"hi\\\\there\")',
+        '+console.log("hi\\\\there")',
         '+path: C:\\\\tmp\\\\file'
       ].join('\n'); // intentionally no trailing newline
 
@@ -71,9 +71,9 @@ function runTests() {
       // Note: this JSON string intentionally contains JSON escapes (\n, \u263A, surrogate pair).
       const json = [
         '{',
-        '  \"version\": 1,',
-        '  \"patch\": \"hello\\nsmile: \\u263A\\nemoji: \\uD83D\\uDE00\",',
-        '  \"meta\": { \"note\": \"x\", \"reason\": \"\", \"provider\": \"codex\" }',
+        '  "version": 1,',
+        '  "patch": "hello\\nsmile: \\u263A\\nemoji: \\uD83D\\uDE00",',
+        '  "meta": { "note": "x", "reason": "", "provider": "codex" }',
         '}'
       ].join('\n');
 
@@ -93,7 +93,7 @@ function runTests() {
     try {
       const jsonPath = path.join(tmp, 'out.json');
       const outPath = path.join(tmp, 'patch.diff');
-      fs.writeFileSync(jsonPath, '{\"version\":1,\"meta\":{}}', 'utf8');
+      fs.writeFileSync(jsonPath, '{"version":1,"meta":{}}', 'utf8');
       assert.throws(() => extractJsonStringFieldToFileSync({ jsonPath, fieldName: 'patch', outPath }));
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true });

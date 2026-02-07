@@ -11,7 +11,6 @@
  */
 
 const fs = require('fs');
-const os = require('os');
 const path = require('path');
 const { spawnSync } = require('child_process');
 
@@ -58,7 +57,6 @@ function parseArgs(argv) {
 }
 
 function usage(exitCode = 0) {
-  // eslint-disable-next-line no-console
   console.log(`
 ecc (Engineering Change Conveyor)
 
@@ -105,16 +103,13 @@ function ensureEccGitignore(projectRoot) {
 function listPacks() {
   const packs = catalog.loadPacks();
   if (!packs.length) {
-    // eslint-disable-next-line no-console
     console.log('No packs found.');
     return;
   }
 
-  // eslint-disable-next-line no-console
   console.log('Packs\n=====\n');
   for (const p of packs) {
     const tags = p.tags.length ? ` [${p.tags.join(', ')}]` : '';
-    // eslint-disable-next-line no-console
     console.log(`- ${p.id}: ${p.name}${tags}\n  ${p.description}`);
   }
 }
@@ -158,11 +153,8 @@ function cmdInit(args) {
   ensureDir(project.locksDir(projectRoot));
   lockMod.writeRegistryLock(projectRoot, { packs: cfg.packs, overwrite: false });
 
-  // eslint-disable-next-line no-console
   console.log(`${existed ? 'Already initialized' : 'Initialized'} ECC: ${path.relative(projectRoot, cfgPath)}`);
-  // eslint-disable-next-line no-console
   console.log(`Backend: ${cfg.backend}`);
-  // eslint-disable-next-line no-console
   console.log(`Packs:   ${cfg.packs.join(', ')}`);
 }
 
@@ -250,11 +242,9 @@ function cmdDoctor() {
     checks.push({ name: 'lock', ok: false, detail: `missing (${path.relative(projectRoot, lockPath)})` });
   }
 
-  // eslint-disable-next-line no-console
   console.log('ECC Doctor\n==========\n');
   for (const c of checks) {
     const mark = c.ok ? 'OK ' : 'BAD';
-    // eslint-disable-next-line no-console
     console.log(`${mark}  ${c.name.padEnd(8)}  ${c.detail}`);
   }
 
@@ -294,9 +284,7 @@ async function cmdPlan(args) {
   await planMod.generatePlan({ projectRoot, run, provider });
   reportMod.writeReport({ projectRoot, runId });
 
-  // eslint-disable-next-line no-console
   console.log(`Planned runId: ${runId}`);
-  // eslint-disable-next-line no-console
   console.log(`Artifacts: ${path.relative(projectRoot, runMod.runPaths(projectRoot, runId).root)}`);
 }
 
@@ -327,7 +315,6 @@ async function cmdExec(args) {
 
   const { worktreePath, applyResult, repoRoot } = execResult;
 
-  // eslint-disable-next-line no-console
   console.log(`Worktree: ${worktreePath}`);
 
   if (commit) {
@@ -503,9 +490,7 @@ async function cmdRun(args) {
   if (loaded) runMod.saveRun(projectRoot, runId, runMod.markRunEnded(loaded, 'succeeded'));
   reportMod.writeReport({ projectRoot, runId });
 
-  // eslint-disable-next-line no-console
   console.log(`RunId: ${runId}`);
-  // eslint-disable-next-line no-console
   console.log(`Worktree: ${execResult.worktreePath}`);
 
   if (commit && !keepWorktree) {
@@ -542,7 +527,6 @@ async function main() {
 
 main().catch(err => {
   const msg = err && err.message ? err.message : String(err);
-  // eslint-disable-next-line no-console
   console.error(`ERROR: ${msg}`);
   process.exit(1);
 });
