@@ -74,17 +74,30 @@ async function execRun({ projectRoot, runId, provider, worktreeRoot }) {
   };
 
   for (const task of ordered) {
-    const patchOut = await provider.generatePatch({ task, repoRoot: worktreePath, packs: run.packs });
-    const patch = patchOut && typeof patchOut.patch === 'string' ? patchOut.patch : null;
     const patchPath = path.join(paths.patchesDir, `${task.id}.diff`);
+    const patchOut = await provider.generatePatch({
+      task,
+      repoRoot: worktreePath,
+      packs: run.packs,
+      patchPath
+    });
 
-    if (patch === null) {
-      applyResult.tasks.push({ id: task.id, patchPath, ok: false, error: 'provider returned non-string patch' });
+    const patch = patchOut && typeof patchOut.patch === 'string' ? patchOut.patch : null;
+    const patchOutPath = patchOut && typeof patchOut.patchPath === 'string' ? patchOut.patchPath : null;
+
+    if (patchOutPath && path.resolve(patchOutPath) !== path.resolve(patchPath)) {
+      applyResult.tasks.push({ id: task.id, patchPath, ok: false, error: 'provider returned unexpected patchPath' });
       writeJson(paths.applyJson, applyResult);
-      throw new Error(`provider returned non-string patch for task: ${task.id}`);
+      throw new Error(`provider returned unexpected patchPath for task: ${task.id}`);
     }
 
-    fs.writeFileSync(patchPath, patch.endsWith('\n') ? patch : patch + '\n', 'utf8');
+    if (patch !== null) {
+      fs.writeFileSync(patchPath, patch.endsWith('\n') ? patch : patch + '\n', 'utf8');
+    } else if (!fs.existsSync(patchPath)) {
+      applyResult.tasks.push({ id: task.id, patchPath, ok: false, error: 'provider did not produce patch' });
+      writeJson(paths.applyJson, applyResult);
+      throw new Error(`provider did not produce patch for task: ${task.id}`);
+    }
 
     try {
       diff.applyPatch({ worktreePath, patchPath, allowedPathPrefixes: task.allowedPathPrefixes });
@@ -106,4 +119,3 @@ async function execRun({ projectRoot, runId, provider, worktreeRoot }) {
 module.exports = {
   execRun
 };
-

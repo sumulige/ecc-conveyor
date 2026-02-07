@@ -4,6 +4,7 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 
 const { promptsDir, schemasDir } = require('../paths');
+const { extractJsonStringFieldToFileSync } = require('../json-extract');
 
 function readText(p) {
   return fs.readFileSync(p, 'utf8');
@@ -13,7 +14,7 @@ function nowIso() {
   return new Date().toISOString();
 }
 
-function runCodexJson({ repoRoot, prompt, schemaPath }) {
+function runCodexLastMessage({ repoRoot, prompt, schemaPath }) {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ecc-codex-'));
   const outPath = path.join(tmpDir, 'last-message.json');
 
@@ -56,19 +57,7 @@ function runCodexJson({ repoRoot, prompt, schemaPath }) {
     throw new Error('codex exec did not write --output-last-message file');
   }
 
-  const raw = fs.readFileSync(outPath, 'utf8').trim();
-  try {
-    return JSON.parse(raw);
-  } catch (err) {
-    const detail = err && err.message ? err.message : String(err);
-    throw new Error(`codex output is not valid JSON (${detail}). Raw:\n${raw.slice(0, 2000)}`);
-  } finally {
-    try {
-      fs.rmSync(tmpDir, { recursive: true, force: true });
-    } catch (_err) {
-      // ignore cleanup failures
-    }
-  }
+  return { tmpDir, outPath };
 }
 
 function planTemplate() {
@@ -127,12 +116,49 @@ function buildPatchPrompt({ task, repoRoot, packs }) {
 
 async function generatePlan({ intent, repoRoot, packs }) {
   const prompt = buildPlanPrompt({ intent, repoRoot, packs });
-  return runCodexJson({ repoRoot, prompt, schemaPath: planSchemaPath() });
+  const { tmpDir, outPath } = runCodexLastMessage({ repoRoot, prompt, schemaPath: planSchemaPath() });
+  let raw = '';
+  try {
+    raw = fs.readFileSync(outPath, 'utf8').trim();
+    return JSON.parse(raw);
+  } catch (err) {
+    const detail = err && err.message ? err.message : String(err);
+    throw new Error(`codex output is not valid JSON (${detail}). Raw:\n${raw.slice(0, 2000)}`);
+  } finally {
+    try {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    } catch (_err) {
+      // ignore cleanup failures
+    }
+  }
 }
 
-async function generatePatch({ task, repoRoot, packs }) {
+async function generatePatch({ task, repoRoot, packs, patchPath }) {
   const prompt = buildPatchPrompt({ task, repoRoot, packs });
-  return runCodexJson({ repoRoot, prompt, schemaPath: patchSchemaPath() });
+  const { tmpDir, outPath } = runCodexLastMessage({ repoRoot, prompt, schemaPath: patchSchemaPath() });
+  try {
+    if (!patchPath) {
+      const raw = fs.readFileSync(outPath, 'utf8').trim();
+      return JSON.parse(raw);
+    }
+
+    extractJsonStringFieldToFileSync({
+      jsonPath: outPath,
+      fieldName: 'patch',
+      outPath: patchPath
+    });
+
+    return {
+      patchPath,
+      meta: { provider: 'codex', generatedAt: nowIso() }
+    };
+  } finally {
+    try {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    } catch (_err) {
+      // ignore cleanup failures
+    }
+  }
 }
 
 module.exports = {
@@ -140,4 +166,3 @@ module.exports = {
   generatePlan,
   generatePatch
 };
-

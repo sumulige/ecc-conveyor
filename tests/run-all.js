@@ -16,6 +16,7 @@ const testFiles = [
   'hooks/hooks.test.js',
   'ecc/ecc.test.js',
   'ecc/schema.test.js',
+  'ecc/json-extract.test.js',
   'ecc/plan.test.js',
   'ecc/exec.test.js',
   'ecc/verify.test.js',
