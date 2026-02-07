@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ecc.patch.schema.json",
+  "title": "ECC Patch Output (P0)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["patch", "meta"],
+  "properties": {
+    "patch": {
+      "type": "string",
+      "description": "Unified diff (git apply compatible). May be empty when task cannot be completed within allowedPathPrefixes."
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Structured notes.",
+      "required": ["note", "reason", "provider"],
+      "properties": {
+        "note": { "type": "string" },
+        "reason": { "type": "string" },
+        "provider": { "type": "string" }
+      }
+    }
+  }
+}
