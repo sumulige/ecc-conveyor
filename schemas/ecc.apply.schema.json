@@ -5,7 +5,7 @@
   "additionalProperties": false,
   "required": ["version", "appliedAt", "baseSha", "tasks"],
   "properties": {
-    "version": { "const": 1 },
+    "version": { "type": "integer", "const": 1 },
     "appliedAt": { "type": "string", "minLength": 1 },
     "baseSha": { "type": "string", "minLength": 1 },
     "tasks": {
@@ -33,4 +33,3 @@
     }
   }
 }
-

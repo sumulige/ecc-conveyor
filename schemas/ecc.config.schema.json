@@ -5,7 +5,7 @@
   "additionalProperties": false,
   "required": ["version", "backend", "packs", "verify", "createdAt"],
   "properties": {
-    "version": { "const": 1 },
+    "version": { "type": "integer", "const": 1 },
     "backend": { "type": "string", "enum": ["codex", "claude"] },
     "packs": {
       "type": "array",
@@ -35,4 +35,3 @@
     "createdAt": { "type": "string", "minLength": 1 }
   }
 }
-

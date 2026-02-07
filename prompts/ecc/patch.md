@@ -5,7 +5,9 @@ You are generating a **unified diff patch** for a single ECC task.
 ## Output Contract (MANDATORY)
 - Output **JSON only** with this shape:
   - `patch` (string): a unified diff usable by `git apply`
-  - `meta` (object, optional): extra notes
+  - `meta` (object): extra notes
+    - Allowed keys only: `note`, `reason`, `provider`
+    - Include all 3 keys (use empty string if not applicable)
 
 ## Hard Constraints
 - You MUST ONLY modify files within the provided `allowedPathPrefixes`.
@@ -21,4 +23,3 @@ You will be given:
 - Project context (light)
 
 ## Return JSON
-

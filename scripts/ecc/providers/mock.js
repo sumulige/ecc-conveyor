@@ -32,7 +32,14 @@ async function generatePatch({ task }) {
   if (!fs.existsSync(patchPath)) {
     throw new Error(`mock provider fixture missing patch: ${patchPath}`);
   }
-  return { patch: readText(patchPath), meta: { provider: 'mock', fixture: path.basename(root) } };
+  return {
+    patch: readText(patchPath),
+    meta: {
+      note: `fixture=${path.basename(root)}`,
+      reason: '',
+      provider: 'mock'
+    }
+  };
 }
 
 module.exports = {
@@ -40,4 +47,3 @@ module.exports = {
   generatePlan,
   generatePatch
 };
-

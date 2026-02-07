@@ -16,7 +16,7 @@
     "startedAt"
   ],
   "properties": {
-    "version": { "const": 1 },
+    "version": { "type": "integer", "const": 1 },
     "runId": { "type": "string", "minLength": 1 },
     "intent": { "type": "string", "minLength": 1 },
     "backend": { "type": "string", "enum": ["codex", "claude"] },
@@ -65,4 +65,3 @@
     "endedAt": { "type": "string" }
   }
 }
-

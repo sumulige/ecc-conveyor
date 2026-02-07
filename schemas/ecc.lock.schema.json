@@ -5,7 +5,7 @@
   "additionalProperties": false,
   "required": ["version", "lockedAt", "engine", "catalog", "packs"],
   "properties": {
-    "version": { "const": 1 },
+    "version": { "type": "integer", "const": 1 },
     "lockedAt": { "type": "string", "minLength": 1 },
     "engine": {
       "type": "object",
@@ -32,4 +32,3 @@
     }
   }
 }
-
