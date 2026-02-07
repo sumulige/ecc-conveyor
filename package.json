@@ -16,7 +16,9 @@
   },
   "files": [
     "scripts/ecc.js",
-    "scripts/ecc/",
+    "scripts/ecc/*.js",
+    "scripts/ecc/providers/",
+    "scripts/ecc/fixtures/",
     "scripts/lib/",
     "crates/ecc-kernel/Cargo.toml",
     "crates/ecc-kernel/Cargo.lock",

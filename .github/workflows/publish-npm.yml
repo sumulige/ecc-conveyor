@@ -18,6 +18,9 @@ jobs:
     name: Publish to npm
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      # Ensure npm pack/publish never vendors a downloaded kernel into the tarball.
+      ECC_KERNEL_INSTALL: "0"
 
     steps:
       - name: Resolve tag

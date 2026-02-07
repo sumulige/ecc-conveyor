@@ -1,0 +1,4 @@
+scripts/ecc/bin/
+.ecc/
+**/*.log
+

@@ -213,7 +213,7 @@ Based on `$ARGUMENTS`, execute init:
 
 After generating files, append PM2 section to project's `CLAUDE.md` (create if not exists):
 
-```markdown
+````markdown
 ## PM2 Services
 
 | Port | Name | Type |
@@ -230,7 +230,7 @@ pm2 logs / pm2 status / pm2 monit
 pm2 save                         # Save process list
 pm2 resurrect                    # Restore saved list
 ```
-```
+````
 
 **Rules for CLAUDE.md update:**
 - If PM2 section exists, replace it
