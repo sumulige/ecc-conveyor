@@ -1,6 +1,6 @@
 {
   "name": "ecc-conveyor",
-  "version": "1.4.7",
+  "version": "1.4.8",
   "description": "ECC Conveyor: Codex-first engineering delivery engine with auditable patch/worktree workflow",
   "license": "MIT",
   "repository": {
