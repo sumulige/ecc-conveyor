@@ -36,10 +36,17 @@ jobs:
           fi
           echo "SMOKE_TAG=$TAG" >> "$GITHUB_ENV"
 
-      - name: Checkout
+      - name: Checkout (main, for smoke tooling)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: repo-main
+
+      - name: Checkout (tag, to pack + install)
         uses: actions/checkout@v4
         with:
           ref: ${{ env.SMOKE_TAG }}
+          path: repo-tag
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -47,11 +54,12 @@ jobs:
           node-version: '20.x'
 
       - name: Install dependencies
+        working-directory: repo-main
         run: npm ci
 
       - name: Run release smoke
-        run: node scripts/ci/release-smoke.js
+        run: node repo-main/scripts/ci/release-smoke.js
         env:
           SMOKE_TAG: ${{ env.SMOKE_TAG }}
+          SMOKE_REPO_ROOT: repo-tag
           GITHUB_TOKEN: ${{ github.token }}
-

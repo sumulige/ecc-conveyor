@@ -64,7 +64,7 @@ function findPackedTgz(packStdout) {
 function ensureManualVerifyOk(repoDir) {
   const cfgPath = path.join(repoDir, '.ecc', 'ecc.json');
   const cfg = readJson(cfgPath);
-  cfg.verify = { mode: 'manual', commands: [{ name: 'ok', command: 'node -e \"process.exit(0)\"' }] };
+  cfg.verify = { mode: 'manual', commands: [{ name: 'ok', command: 'node -e "process.exit(0)"' }] };
   writeJson(cfgPath, cfg);
 }
 
@@ -133,7 +133,9 @@ function createScratchRepo(baseDir, name) {
 }
 
 function main() {
-  const repoRoot = path.resolve(__dirname, '..', '..');
+  const repoRoot = process.env.SMOKE_REPO_ROOT
+    ? path.resolve(String(process.env.SMOKE_REPO_ROOT))
+    : path.resolve(__dirname, '..', '..');
   const tag = process.env.SMOKE_TAG ? String(process.env.SMOKE_TAG).trim() : '';
 
   console.log('\n=== ECC Release Smoke ===\n');
@@ -174,14 +176,14 @@ function main() {
 
       const out = (res.stdout || '') + (res.stderr || '');
       // Release assets can be slightly eventual-consistent right after publish.
-      if (/HTTP\\s+404\\b/i.test(out) || /releases\\/download\\//i.test(out)) {
+      if (/HTTP\s+404\b/i.test(out) || /releases\/download\//i.test(out)) {
         throw new Error(`retryable install failure:\n${out}`);
       }
       throw new Error(`non-retryable install failure (exit ${res.status}):\n${out}`);
     }, {
       tries: 12,
       delayMs: 10_000,
-      onRetry: (attempt, err) => console.log(`Install failed (attempt ${attempt}/12). Retrying... (${err.message.split('\\n')[0]})`)
+      onRetry: (attempt, err) => console.log(`Install failed (attempt ${attempt}/12). Retrying... (${err.message.split('\n')[0]})`)
     });
 
     run(bin('npx'), ['ecc', 'init'], { cwd: repoA, env: commonEnv });
