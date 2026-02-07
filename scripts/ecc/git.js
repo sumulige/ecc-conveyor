@@ -38,7 +38,8 @@ function getCurrentBranch(repoRoot) {
 }
 
 function isClean(repoRoot) {
-  const res = runGit(['-C', repoRoot, 'status', '--porcelain']);
+  // Ignore untracked files; they won't be part of the worktree branch anyway.
+  const res = runGit(['-C', repoRoot, 'status', '--porcelain', '--untracked-files=no']);
   if (!res.ok) throw new Error(res.stderr || 'git status --porcelain failed');
   return res.stdout.trim().length === 0;
 }
