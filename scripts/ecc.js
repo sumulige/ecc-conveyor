@@ -62,7 +62,8 @@ function usage(exitCode = 0) {
 ecc (Engineering Change Conveyor)
 
 Usage:
-  node scripts/ecc.js <command> [args...]
+  ecc <command> [args...]
+  node scripts/ecc.js <command> [args...]   # fallback if not installed
 
 Commands (P0):
   packs
@@ -259,7 +260,7 @@ async function cmdPlan(args) {
   const projectRoot = resolveProjectRoot(cwd);
 
   const cfg = configMod.loadConfig(projectRoot);
-  if (!cfg) throw new Error('ECC is not initialized (run: node scripts/ecc.js init)');
+  if (!cfg) throw new Error('ECC is not initialized (run: ecc init)');
 
   const requestedRunId = args['run-id'] ? String(args['run-id']) : null;
   const runIdBase = requestedRunId || idMod.defaultRunId(intent);
@@ -297,7 +298,7 @@ async function cmdExec(args) {
   const projectRoot = resolveProjectRoot(cwd);
 
   const cfg = configMod.loadConfig(projectRoot);
-  if (!cfg) throw new Error('ECC is not initialized (run: node scripts/ecc.js init)');
+  if (!cfg) throw new Error('ECC is not initialized (run: ecc init)');
 
   const provider = getProvider({ backend: cfg.backend });
   const worktreeRoot = args['worktree-root'] ? path.resolve(String(args['worktree-root'])) : null;
@@ -368,7 +369,7 @@ function cmdVerify(args) {
   const worktreeRoot = args['worktree-root'] ? path.resolve(String(args['worktree-root'])) : null;
 
   const cfg = configMod.loadConfig(projectRoot);
-  if (!cfg) throw new Error('ECC is not initialized (run: node scripts/ecc.js init)');
+  if (!cfg) throw new Error('ECC is not initialized (run: ecc init)');
 
   const run = runMod.loadRun(projectRoot, runId);
   if (!run) throw new Error(`unknown runId: ${runId}`);
@@ -423,7 +424,7 @@ async function cmdRun(args) {
   const projectRoot = resolveProjectRoot(cwd);
 
   const cfg = configMod.loadConfig(projectRoot);
-  if (!cfg) throw new Error('ECC is not initialized (run: node scripts/ecc.js init)');
+  if (!cfg) throw new Error('ECC is not initialized (run: ecc init)');
 
   const requestedRunId = args['run-id'] ? String(args['run-id']) : null;
   const runIdBase = requestedRunId || idMod.defaultRunId(intent);

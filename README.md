@@ -144,6 +144,14 @@ cp -r everything-claude-code/rules/golang/* ~/.claude/rules/
 
 ---
 
+## ECC CLI (Engineering Change Conveyor)
+
+This repo also includes **ECC**, a Codex-first engineering delivery engine that produces an auditable evidence chain and applies changes via unified-diff patches in an external git worktree.
+
+Quickstart + install docs: [docs/ecc.md](docs/ecc.md)
+
+---
+
 ## 🌐 Cross-Platform Support
 
 This plugin now fully supports **Windows, macOS, and Linux**. All hooks and scripts have been rewritten in Node.js for maximum compatibility.
