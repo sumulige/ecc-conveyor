@@ -148,7 +148,31 @@ cp -r ecc-conveyor/rules/golang/* ~/.claude/rules/
 
 This repo also includes **ECC**, a Codex-first engineering delivery engine that produces an auditable evidence chain and applies changes via unified-diff patches in an external git worktree.
 
-Quickstart + install docs: [docs/ecc.md](docs/ecc.md)
+**npm package:** `ecc-conveyor` (CLI: `ecc`)
+
+### Install (project-local, recommended)
+
+```bash
+npm install -D ecc-conveyor
+
+npx ecc --help
+```
+
+### Install (global)
+
+```bash
+npm install -g ecc-conveyor
+
+ecc --help
+```
+
+Note: If you install into a project, use `npx ecc ...`. If installed globally, you can use `ecc ...`.
+
+Quickstart + docs: [docs/ecc.md](docs/ecc.md)
+
+Package map:
+- `ecc-conveyor`: ECC CLI (command: `ecc`)
+- `opencode-ecc`: OpenCode plugin package (separate from ECC CLI)
 
 ---
 

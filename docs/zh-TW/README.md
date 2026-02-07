@@ -99,6 +99,38 @@ cp -r ecc-conveyor/rules/* ~/.claude/rules/
 
 ---
 
+## ECC CLI（Engineering Change Conveyor）
+
+此儲存庫也包含 **ECC**：一個以 Codex 為預設 provider 的工程化交付引擎。它會產出可稽核的證據鏈，並透過 unified-diff patch 在外部 git worktree 中套用程式碼變更。
+
+**npm 套件名稱：** `ecc-conveyor`（CLI 指令：`ecc`）
+
+### 方式 A：安裝到專案（推薦）
+
+```bash
+npm install -D ecc-conveyor
+
+npx ecc --help
+```
+
+### 方式 B：全域安裝 CLI
+
+```bash
+npm install -g ecc-conveyor
+
+ecc --help
+```
+
+說明：如果您安裝到專案中，預設使用 `npx ecc ...`；只有全域安裝時，才直接使用 `ecc ...`。
+
+快速開始與文件：[docs/ecc.md](../ecc.md)
+
+套件映射（避免混淆）：
+- `ecc-conveyor`：ECC CLI（指令：`ecc`）
+- `opencode-ecc`：OpenCode 外掛套件（與 ECC CLI 的 npm 套件不同）
+
+---
+
 ## 🌐 跨平台支援
 
 此外掛程式現已完整支援 **Windows、macOS 和 Linux**。所有鉤子和腳本已使用 Node.js 重寫以獲得最佳相容性。

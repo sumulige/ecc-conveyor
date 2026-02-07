@@ -51,7 +51,8 @@ The release chain is designed to make installs reliable:
 
 7. Publish to npm:
 - Workflow: `.github/workflows/publish-npm.yml`
-- Uses npm Trusted Publishing (OIDC) if configured, with optional `NPM_TOKEN` fallback.
+- Uses npm Trusted Publishing (OIDC) + provenance (OIDC-only; no `NPM_TOKEN` fallback).
+- The repo should not keep an `NPM_TOKEN` Actions secret; configure npm "Trusted Publisher" instead.
 
 ---
 
@@ -70,6 +71,7 @@ The release chain is designed to make installs reliable:
   - owner: `sumulige`
   - repo: `ecc-conveyor`
   - workflow file: `publish-npm.yml`
+- This repo uses OIDC-only publishing (no `NPM_TOKEN` fallback).
 - Re-run publish:
 
   ```bash

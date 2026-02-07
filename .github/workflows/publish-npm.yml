@@ -141,20 +141,6 @@ jobs:
         if: steps.published.outputs.already != 'true'
         run: npm test
 
-      - name: Configure npm auth token (optional fallback)
-        if: steps.published.outputs.already != 'true'
-        shell: bash
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          set -euo pipefail
-          if [ -n "${NPM_TOKEN:-}" ]; then
-            npm config set //registry.npmjs.org/:_authToken "${NPM_TOKEN}"
-            echo "Configured NPM_TOKEN auth (fallback)."
-          else
-            echo "No NPM_TOKEN provided; relying on npm Trusted Publishing (OIDC)."
-          fi
-
       - name: Publish
         if: steps.published.outputs.already != 'true'
         run: npm publish --provenance --access public
