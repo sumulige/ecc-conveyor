@@ -1,0 +1,978 @@
+{
+  "version": 1,
+  "generatedAt": "2026-02-08T00:13:10+08:00",
+  "repo": {
+    "owner": "sumulige",
+    "name": "ecc-conveyor",
+    "defaultBranch": "main",
+    "sha": "7d83e1b946ad7065e90735f602a3e33c16e7514c",
+    "tag": null
+  },
+  "stats": {
+    "agents": 13,
+    "commands": 31,
+    "skills": 29,
+    "rules": 24,
+    "packs": 6
+  },
+  "packs": [
+    {
+      "id": "blueprint",
+      "name": "Blueprint",
+      "description": "Turn vague intent into an executable plan: requirements, risk, interfaces, and an incremental path to shipping.",
+      "modules": [
+        "command:plan",
+        "command:multi-plan",
+        "agent:planner",
+        "agent:architect"
+      ],
+      "tags": [
+        "planning",
+        "architecture",
+        "scope"
+      ],
+      "path": "packs/blueprint.json",
+      "digest": "eaa43c53fa1f74b664a934d465fe0a73cc0ec158f71655401f6e8b500f4ba250"
+    },
+    {
+      "id": "forge",
+      "name": "Forge",
+      "description": "Ship with confidence: TDD-first workflows, coverage discipline, and fast iteration when builds break.",
+      "modules": [
+        "command:tdd",
+        "command:test-coverage",
+        "command:build-fix",
+        "command:multi-execute",
+        "agent:tdd-guide",
+        "agent:build-error-resolver",
+        "skill:tdd-workflow"
+      ],
+      "tags": [
+        "tdd",
+        "implementation",
+        "reliability"
+      ],
+      "path": "packs/forge.json",
+      "digest": "72bb631b499ff8d1e6e7b8782bb844c6682583ead4cef63da59a3cd4b303dcbe"
+    },
+    {
+      "id": "instinct",
+      "name": "Instinct",
+      "description": "Make your agent learn. Extract patterns from real sessions, score confidence, and evolve stable workflows over time.",
+      "modules": [
+        "command:learn",
+        "command:instinct-status",
+        "command:instinct-import",
+        "command:instinct-export",
+        "command:evolve",
+        "skill:continuous-learning",
+        "skill:continuous-learning-v2"
+      ],
+      "tags": [
+        "learning",
+        "memory",
+        "automation"
+      ],
+      "path": "packs/instinct.json",
+      "digest": "addc30b6d7dc1067ab5a86f9228b36678601a2d81a6e7be7009a48904cc92faf"
+    },
+    {
+      "id": "orchestra",
+      "name": "Orchestra",
+      "description": "Scale beyond a single agent: orchestrate multi-service work, keep state, and run parallel workflows without chaos.",
+      "modules": [
+        "command:orchestrate",
+        "command:pm2",
+        "command:multi-workflow",
+        "command:multi-backend",
+        "command:multi-frontend",
+        "command:multi-execute"
+      ],
+      "tags": [
+        "multi-agent",
+        "orchestration",
+        "systems"
+      ],
+      "path": "packs/orchestra.json",
+      "digest": "659ea03860441bb0463ffaeec3e179ae09f40b6738871df03a009f985c65f347"
+    },
+    {
+      "id": "proof",
+      "name": "Proof",
+      "description": "Verification loops that earn trust: checkpoints, build + test discipline, and eval-driven development patterns.",
+      "modules": [
+        "command:verify",
+        "command:checkpoint",
+        "command:eval",
+        "skill:verification-loop",
+        "skill:eval-harness"
+      ],
+      "tags": [
+        "verification",
+        "quality",
+        "evals"
+      ],
+      "path": "packs/proof.json",
+      "digest": "77e292ebea1983ff9d88462def59953e129685b107159a5322312bbc08489761"
+    },
+    {
+      "id": "sentinel",
+      "name": "Sentinel",
+      "description": "Security and review as defaults: systematic threat checks, safer diffs, and an opinionated quality gate.",
+      "modules": [
+        "command:code-review",
+        "agent:code-reviewer",
+        "agent:security-reviewer",
+        "skill:security-review"
+      ],
+      "tags": [
+        "security",
+        "review",
+        "risk"
+      ],
+      "path": "packs/sentinel.json",
+      "digest": "f5672dbc96f67cdfbbea6d1690bae2fdfffa16323a9cfb287e777ef7db13a6e7"
+    }
+  ],
+  "modules": {
+    "agents": [
+      {
+        "id": "agent:architect",
+        "type": "agent",
+        "name": "architect",
+        "description": "Software architecture specialist for system design, scalability, and technical decision-making. Use PROACTIVELY when planning new features, refactoring large systems, or making architectural decisions.",
+        "model": "opus",
+        "tools": "[\"Read\", \"Grep\", \"Glob\"]",
+        "path": "agents/architect.md",
+        "digest": "e4c02d466d90f1b70d77a0ad9c23b048d852a1d4e040d33e55ba1a859801a1f0"
+      },
+      {
+        "id": "agent:build-error-resolver",
+        "type": "agent",
+        "name": "build-error-resolver",
+        "description": "Build and TypeScript error resolution specialist. Use PROACTIVELY when build fails or type errors occur. Fixes build/type errors only with minimal diffs, no architectural edits. Focuses on getting the build green quickly.",
+        "model": "opus",
+        "tools": "[\"Read\", \"Write\", \"Edit\", \"Bash\", \"Grep\", \"Glob\"]",
+        "path": "agents/build-error-resolver.md",
+        "digest": "68955de286e8e889d491aa7a367c32ca52102f9aabdb10e3586a055233b63aeb"
+      },
+      {
+        "id": "agent:code-reviewer",
+        "type": "agent",
+        "name": "code-reviewer",
+        "description": "Expert code review specialist. Proactively reviews code for quality, security, and maintainability. Use immediately after writing or modifying code. MUST BE USED for all code changes.",
+        "model": "opus",
+        "tools": "[\"Read\", \"Grep\", \"Glob\", \"Bash\"]",
+        "path": "agents/code-reviewer.md",
+        "digest": "9703bf58fd371d25652837121c6e219351bfb3e2f3bd8fe8f72448218d43cf8a"
+      },
+      {
+        "id": "agent:database-reviewer",
+        "type": "agent",
+        "name": "database-reviewer",
+        "description": "PostgreSQL database specialist for query optimization, schema design, security, and performance. Use PROACTIVELY when writing SQL, creating migrations, designing schemas, or troubleshooting database performance. Incorporates Supabase best practices.",
+        "model": "opus",
+        "tools": "[\"Read\", \"Write\", \"Edit\", \"Bash\", \"Grep\", \"Glob\"]",
+        "path": "agents/database-reviewer.md",
+        "digest": "ec7027f32d353d82db3a7e59a3749b42890638a4ff0336184bd774413c056934"
+      },
+      {
+        "id": "agent:doc-updater",
+        "type": "agent",
+        "name": "doc-updater",
+        "description": "Documentation and codemap specialist. Use PROACTIVELY for updating codemaps and documentation. Runs /update-codemaps and /update-docs, generates docs/CODEMAPS/*, updates READMEs and guides.",
+        "model": "opus",
+        "tools": "[\"Read\", \"Write\", \"Edit\", \"Bash\", \"Grep\", \"Glob\"]",
+        "path": "agents/doc-updater.md",
+        "digest": "b856aa5bdef47a7123e2161139c678b917f3efd714881ae3a5a9002b108f1bde"
+      },
+      {
+        "id": "agent:e2e-runner",
+        "type": "agent",
+        "name": "e2e-runner",
+        "description": "End-to-end testing specialist using Vercel Agent Browser (preferred) with Playwright fallback. Use PROACTIVELY for generating, maintaining, and running E2E tests. Manages test journeys, quarantines flaky tests, uploads artifacts (screenshots, videos, traces), and ensures critical user flows work.",
+        "model": "opus",
+        "tools": "[\"Read\", \"Write\", \"Edit\", \"Bash\", \"Grep\", \"Glob\"]",
+        "path": "agents/e2e-runner.md",
+        "digest": "a7b61cb5dae4cea77f31136a0998abe64d4be45b3718dab7c0a17e4ed53c5ea4"
+      },
+      {
+        "id": "agent:go-build-resolver",
+        "type": "agent",
+        "name": "go-build-resolver",
+        "description": "Go build, vet, and compilation error resolution specialist. Fixes build errors, go vet issues, and linter warnings with minimal changes. Use when Go builds fail.",
+        "model": "opus",
+        "tools": "[\"Read\", \"Write\", \"Edit\", \"Bash\", \"Grep\", \"Glob\"]",
+        "path": "agents/go-build-resolver.md",
+        "digest": "4646c0be15c6de3edd2a2ae1d4834085043a65bad1f8317c00fcba1f03c83cee"
+      },
+      {
+        "id": "agent:go-reviewer",
+        "type": "agent",
+        "name": "go-reviewer",
+        "description": "Expert Go code reviewer specializing in idiomatic Go, concurrency patterns, error handling, and performance. Use for all Go code changes. MUST BE USED for Go projects.",
+        "model": "opus",
+        "tools": "[\"Read\", \"Grep\", \"Glob\", \"Bash\"]",
+        "path": "agents/go-reviewer.md",
+        "digest": "f45971c40819e18f8181ff2044cbe503188829f3a9dce2a5812ead691ee01c77"
+      },
+      {
+        "id": "agent:planner",
+        "type": "agent",
+        "name": "planner",
+        "description": "Expert planning specialist for complex features and refactoring. Use PROACTIVELY when users request feature implementation, architectural changes, or complex refactoring. Automatically activated for planning tasks.",
+        "model": "opus",
+        "tools": "[\"Read\", \"Grep\", \"Glob\"]",
+        "path": "agents/planner.md",
+        "digest": "81592485df61b53b4b7b50e16a9cb14ceb7b374b0570409be5d38fa6f3ebfeea"
+      },
+      {
+        "id": "agent:python-reviewer",
+        "type": "agent",
+        "name": "python-reviewer",
+        "description": "Expert Python code reviewer specializing in PEP 8 compliance, Pythonic idioms, type hints, security, and performance. Use for all Python code changes. MUST BE USED for Python projects.",
+        "model": "opus",
+        "tools": "[\"Read\", \"Grep\", \"Glob\", \"Bash\"]",
+        "path": "agents/python-reviewer.md",
+        "digest": "c21dd18c458a6bc4a393cab3ecaf812aaa01d605977ea55183abb7b92f4bdaf8"
+      },
+      {
+        "id": "agent:refactor-cleaner",
+        "type": "agent",
+        "name": "refactor-cleaner",
+        "description": "Dead code cleanup and consolidation specialist. Use PROACTIVELY for removing unused code, duplicates, and refactoring. Runs analysis tools (knip, depcheck, ts-prune) to identify dead code and safely removes it.",
+        "model": "opus",
+        "tools": "[\"Read\", \"Write\", \"Edit\", \"Bash\", \"Grep\", \"Glob\"]",
+        "path": "agents/refactor-cleaner.md",
+        "digest": "3a5f6a77c40c75b4b137f22d41bd347a2a4e9d272060ef24b4aeb869a6865654"
+      },
+      {
+        "id": "agent:security-reviewer",
+        "type": "agent",
+        "name": "security-reviewer",
+        "description": "Security vulnerability detection and remediation specialist. Use PROACTIVELY after writing code that handles user input, authentication, API endpoints, or sensitive data. Flags secrets, SSRF, injection, unsafe crypto, and OWASP Top 10 vulnerabilities.",
+        "model": "opus",
+        "tools": "[\"Read\", \"Write\", \"Edit\", \"Bash\", \"Grep\", \"Glob\"]",
+        "path": "agents/security-reviewer.md",
+        "digest": "70a915f00a16ee9f31cb2b30066603b408e3d52d82fcb2cb1c3ca713d6f5ec69"
+      },
+      {
+        "id": "agent:tdd-guide",
+        "type": "agent",
+        "name": "tdd-guide",
+        "description": "Test-Driven Development specialist enforcing write-tests-first methodology. Use PROACTIVELY when writing new features, fixing bugs, or refactoring code. Ensures 80%+ test coverage.",
+        "model": "opus",
+        "tools": "[\"Read\", \"Write\", \"Edit\", \"Bash\", \"Grep\"]",
+        "path": "agents/tdd-guide.md",
+        "digest": "97911dee63fd07a59de1cab0fa3207481c0b5ed8799e93a8db0b4617a1ce0c1f"
+      }
+    ],
+    "commands": [
+      {
+        "id": "command:build-fix",
+        "type": "command",
+        "name": "build-fix",
+        "description": null,
+        "path": "commands/build-fix.md",
+        "digest": "0f032c67e3ea07cf479c5658ee2d52a5d72a68fe222d6b8644865f08676d0eaf"
+      },
+      {
+        "id": "command:checkpoint",
+        "type": "command",
+        "name": "checkpoint",
+        "description": null,
+        "path": "commands/checkpoint.md",
+        "digest": "688a05474a64fb9543841d8e428a3a27dfb999bb88c0e648df09961b2247ddad"
+      },
+      {
+        "id": "command:code-review",
+        "type": "command",
+        "name": "code-review",
+        "description": null,
+        "path": "commands/code-review.md",
+        "digest": "690b878d1b9ba6ecf6c1ce180ec5de0d79db5575d367e52f91031f103a2ff9df"
+      },
+      {
+        "id": "command:e2e",
+        "type": "command",
+        "name": "e2e",
+        "description": "Generate and run end-to-end tests with Playwright. Creates test journeys, runs tests, captures screenshots/videos/traces, and uploads artifacts.",
+        "path": "commands/e2e.md",
+        "digest": "eb0f0d68d5f58d0c5dd0d59fe653c22cc104b8f4a51df621eac04f5aeb7ca1b2"
+      },
+      {
+        "id": "command:eval",
+        "type": "command",
+        "name": "eval",
+        "description": null,
+        "path": "commands/eval.md",
+        "digest": "7c8e20c659952ce33b248d83517ad988abefe0bff31580a937896b3531a8798f"
+      },
+      {
+        "id": "command:evolve",
+        "type": "command",
+        "name": "evolve",
+        "description": "Cluster related instincts into skills, commands, or agents",
+        "path": "commands/evolve.md",
+        "digest": "3f0d8260e8d47f523c1bf6b82841d8484627bb74f5ca7cc93c81eb483ae85617"
+      },
+      {
+        "id": "command:go-build",
+        "type": "command",
+        "name": "go-build",
+        "description": "Fix Go build errors, go vet warnings, and linter issues incrementally. Invokes the go-build-resolver agent for minimal, surgical fixes.",
+        "path": "commands/go-build.md",
+        "digest": "ebb9375b0c441f0be31d47992709cc1ef878acb2e531edfad6daec563eb9ac62"
+      },
+      {
+        "id": "command:go-review",
+        "type": "command",
+        "name": "go-review",
+        "description": "Comprehensive Go code review for idiomatic patterns, concurrency safety, error handling, and security. Invokes the go-reviewer agent.",
+        "path": "commands/go-review.md",
+        "digest": "4cbaf58d3f2d8bf82cb37d1e3985ad48d994d162e96bb470af05e194e978e43a"
+      },
+      {
+        "id": "command:go-test",
+        "type": "command",
+        "name": "go-test",
+        "description": "Enforce TDD workflow for Go. Write table-driven tests first, then implement. Verify 80%+ coverage with go test -cover.",
+        "path": "commands/go-test.md",
+        "digest": "803cec4d92a361e2623fdf027eb67eea56843ad563814d693382ab7fe6163708"
+      },
+      {
+        "id": "command:instinct-export",
+        "type": "command",
+        "name": "instinct-export",
+        "description": "Export instincts for sharing with teammates or other projects",
+        "path": "commands/instinct-export.md",
+        "digest": "0f5563b59ae4b78b9a4ff9b94df0dfe97baa1d1b5d043576b2dc80f2fd251fd4"
+      },
+      {
+        "id": "command:instinct-import",
+        "type": "command",
+        "name": "instinct-import",
+        "description": "Import instincts from teammates, Skill Creator, or other sources",
+        "path": "commands/instinct-import.md",
+        "digest": "b1cc0a3a3b0e258a2d08f00689ea8f11a0596486cfd1223c99e8d91e5818f637"
+      },
+      {
+        "id": "command:instinct-status",
+        "type": "command",
+        "name": "instinct-status",
+        "description": "Show all learned instincts with their confidence levels",
+        "path": "commands/instinct-status.md",
+        "digest": "c418ead962c207b6e6af08be9108389ec43982ccae0605fa06629d8e66506da7"
+      },
+      {
+        "id": "command:learn",
+        "type": "command",
+        "name": "learn",
+        "description": null,
+        "path": "commands/learn.md",
+        "digest": "696c0a0aa3d5053ff3b383f167225fcc8dc8b91f1bc54fea2bf3826e830a70e8"
+      },
+      {
+        "id": "command:multi-backend",
+        "type": "command",
+        "name": "multi-backend",
+        "description": null,
+        "path": "commands/multi-backend.md",
+        "digest": "b2ca8cf77d365e55c08c15e559df2101cdb8e0e69b6dd77e95b5b896f04b9f15"
+      },
+      {
+        "id": "command:multi-execute",
+        "type": "command",
+        "name": "multi-execute",
+        "description": null,
+        "path": "commands/multi-execute.md",
+        "digest": "9dc1b6ce0314886fab29620eac5040d3d735de59187920e48164c2377a8ef965"
+      },
+      {
+        "id": "command:multi-frontend",
+        "type": "command",
+        "name": "multi-frontend",
+        "description": null,
+        "path": "commands/multi-frontend.md",
+        "digest": "6f8c5f82bc778f235d70e9a621e20b7de8722ff7bcc0ce0660cc5299f2d7e074"
+      },
+      {
+        "id": "command:multi-plan",
+        "type": "command",
+        "name": "multi-plan",
+        "description": null,
+        "path": "commands/multi-plan.md",
+        "digest": "3851ab503d23616289e8bbe5cf82345afa84ff293ad27108235b7808d4746987"
+      },
+      {
+        "id": "command:multi-workflow",
+        "type": "command",
+        "name": "multi-workflow",
+        "description": null,
+        "path": "commands/multi-workflow.md",
+        "digest": "96df70793588c0c5c4a405a64965cf2360e2ab68ca4e6b4d440c2bca65e1ec07"
+      },
+      {
+        "id": "command:orchestrate",
+        "type": "command",
+        "name": "orchestrate",
+        "description": null,
+        "path": "commands/orchestrate.md",
+        "digest": "a9d8de11e90a08b9d6dc2b879e7aa12c19335c5adf37c4d5d6d2b4904ecbe443"
+      },
+      {
+        "id": "command:plan",
+        "type": "command",
+        "name": "plan",
+        "description": "Restate requirements, assess risks, and create step-by-step implementation plan. WAIT for user CONFIRM before touching any code.",
+        "path": "commands/plan.md",
+        "digest": "1256a4e93f26fdcd08c7613f427171162cbbfed7c6ab3b0bb243c9c37e3004a9"
+      },
+      {
+        "id": "command:pm2",
+        "type": "command",
+        "name": "pm2",
+        "description": null,
+        "path": "commands/pm2.md",
+        "digest": "92b968d7e3f62b11ffcd86ab4ce584e6bdfa691f5496a14e519ec7c6a447e325"
+      },
+      {
+        "id": "command:python-review",
+        "type": "command",
+        "name": "python-review",
+        "description": "Comprehensive Python code review for PEP 8 compliance, type hints, security, and Pythonic idioms. Invokes the python-reviewer agent.",
+        "path": "commands/python-review.md",
+        "digest": "b1d61f9c5b6c38be3a41ae0e9d1b218031afabb77960f228755ed3960e20c265"
+      },
+      {
+        "id": "command:refactor-clean",
+        "type": "command",
+        "name": "refactor-clean",
+        "description": null,
+        "path": "commands/refactor-clean.md",
+        "digest": "52b0fdafc9172d79fd2655e56926f82d1ea2b64356e7edf725be7564d73f3a16"
+      },
+      {
+        "id": "command:sessions",
+        "type": "command",
+        "name": "sessions",
+        "description": null,
+        "path": "commands/sessions.md",
+        "digest": "ce5d78cba5815bf35a5f5eea68e487faeb2930dd74c817795d94ffe5b36e992b"
+      },
+      {
+        "id": "command:setup-pm",
+        "type": "command",
+        "name": "setup-pm",
+        "description": "Configure your preferred package manager (npm/pnpm/yarn/bun)",
+        "path": "commands/setup-pm.md",
+        "digest": "163b3cd106028d21dbd2a91b47f1cf99957e40a78ed9e5e5dc8507e225f73a2d"
+      },
+      {
+        "id": "command:skill-create",
+        "type": "command",
+        "name": "skill-create",
+        "description": "Analyze local git history to extract coding patterns and generate SKILL.md files. Local version of the Skill Creator GitHub App.",
+        "path": "commands/skill-create.md",
+        "digest": "ec942251aa8909c25f0ef32dcc241b0cba32b92e909530cf0644ab46fa119dce"
+      },
+      {
+        "id": "command:tdd",
+        "type": "command",
+        "name": "tdd",
+        "description": "Enforce test-driven development workflow. Scaffold interfaces, generate tests FIRST, then implement minimal code to pass. Ensure 80%+ coverage.",
+        "path": "commands/tdd.md",
+        "digest": "1a39722b8c90680de728537fffa94f9e6f800dad6bdb04fa9bc3171a8573d1cf"
+      },
+      {
+        "id": "command:test-coverage",
+        "type": "command",
+        "name": "test-coverage",
+        "description": null,
+        "path": "commands/test-coverage.md",
+        "digest": "7057b0ae2423a805a6b4095c2a9569b841f0080356bd9bf0d49c6ce422a9c80a"
+      },
+      {
+        "id": "command:update-codemaps",
+        "type": "command",
+        "name": "update-codemaps",
+        "description": null,
+        "path": "commands/update-codemaps.md",
+        "digest": "c59a8c73f414b12747bb20611ca6cf204e3c552935d050af5adf704efac4723c"
+      },
+      {
+        "id": "command:update-docs",
+        "type": "command",
+        "name": "update-docs",
+        "description": null,
+        "path": "commands/update-docs.md",
+        "digest": "752fc73c254d74039d5046cfb2f77b132cd990fa78b97c0ee9d6e72d91db4976"
+      },
+      {
+        "id": "command:verify",
+        "type": "command",
+        "name": "verify",
+        "description": null,
+        "path": "commands/verify.md",
+        "digest": "22ad1cca29aa497327d466836e16604a9b4561c2fd6a293ec7ab5780f9966708"
+      }
+    ],
+    "skills": [
+      {
+        "id": "skill:backend-patterns",
+        "type": "skill",
+        "name": "backend-patterns",
+        "description": "Backend architecture patterns, API design, database optimization, and server-side best practices for Node.js, Express, and Next.js API routes.",
+        "path": "skills/backend-patterns",
+        "entrypoint": "skills/backend-patterns/SKILL.md",
+        "digest": "082f552ec6da083892986f0ebac0650594b4640101d782ce0d5caadee30a10f7"
+      },
+      {
+        "id": "skill:clickhouse-io",
+        "type": "skill",
+        "name": "clickhouse-io",
+        "description": "ClickHouse database patterns, query optimization, analytics, and data engineering best practices for high-performance analytical workloads.",
+        "path": "skills/clickhouse-io",
+        "entrypoint": "skills/clickhouse-io/SKILL.md",
+        "digest": "40db2f533c6498f38928b84ae0671727f6bf4a287d924226c80e4b06132a4824"
+      },
+      {
+        "id": "skill:coding-standards",
+        "type": "skill",
+        "name": "coding-standards",
+        "description": "Universal coding standards, best practices, and patterns for TypeScript, JavaScript, React, and Node.js development.",
+        "path": "skills/coding-standards",
+        "entrypoint": "skills/coding-standards/SKILL.md",
+        "digest": "3d2ec18156af5edf6c23308722391787fb7c54a778b6958958b04510a72843cd"
+      },
+      {
+        "id": "skill:configure-ecc",
+        "type": "skill",
+        "name": "configure-ecc",
+        "description": "Interactive installer for ECC Conveyor — guides users through selecting and installing skills and rules to user-level or project-level directories, verifies paths, and optionally optimizes installed files.",
+        "path": "skills/configure-ecc",
+        "entrypoint": "skills/configure-ecc/SKILL.md",
+        "digest": "963e251ece120ae74009f4619b94ee0098862126ae326f8f03f15725dda27d2f"
+      },
+      {
+        "id": "skill:continuous-learning",
+        "type": "skill",
+        "name": "continuous-learning",
+        "description": "Automatically extract reusable patterns from Claude Code sessions and save them as learned skills for future use.",
+        "path": "skills/continuous-learning",
+        "entrypoint": "skills/continuous-learning/SKILL.md",
+        "digest": "d2bec8e36c373ef9003245de2e2f508b3aa63031bfd26f1a152b96d59a09d39c"
+      },
+      {
+        "id": "skill:continuous-learning-v2",
+        "type": "skill",
+        "name": "continuous-learning-v2",
+        "description": "Instinct-based learning system that observes sessions via hooks, creates atomic instincts with confidence scoring, and evolves them into skills/commands/agents.",
+        "path": "skills/continuous-learning-v2",
+        "entrypoint": "skills/continuous-learning-v2/SKILL.md",
+        "digest": "f0cdea0356d0ba5ba3b7c7899d29816bb002532bec8b2a33596a69c5e2a7d607"
+      },
+      {
+        "id": "skill:django-patterns",
+        "type": "skill",
+        "name": "django-patterns",
+        "description": "Django architecture patterns, REST API design with DRF, ORM best practices, caching, signals, middleware, and production-grade Django apps.",
+        "path": "skills/django-patterns",
+        "entrypoint": "skills/django-patterns/SKILL.md",
+        "digest": "c0dbfdc601cf3a9d177fb0ed669a1e212265e8147f4073f02a7dbc5701d7067d"
+      },
+      {
+        "id": "skill:django-security",
+        "type": "skill",
+        "name": "django-security",
+        "description": "Django security best practices, authentication, authorization, CSRF protection, SQL injection prevention, XSS prevention, and secure deployment configurations.",
+        "path": "skills/django-security",
+        "entrypoint": "skills/django-security/SKILL.md",
+        "digest": "50ea3f40a0f99a35d2dfe0729a2ebdc699d3c1f8d13fe6d293e9b9cd657ef649"
+      },
+      {
+        "id": "skill:django-tdd",
+        "type": "skill",
+        "name": "django-tdd",
+        "description": "Django testing strategies with pytest-django, TDD methodology, factory_boy, mocking, coverage, and testing Django REST Framework APIs.",
+        "path": "skills/django-tdd",
+        "entrypoint": "skills/django-tdd/SKILL.md",
+        "digest": "635ecdf8b8f07881836b6b37d59a5b1707d2e426004e7fd48d3b6d49e3abc234"
+      },
+      {
+        "id": "skill:django-verification",
+        "type": "skill",
+        "name": "django-verification",
+        "description": "Verification loop for Django projects: migrations, linting, tests with coverage, security scans, and deployment readiness checks before release or PR.",
+        "path": "skills/django-verification",
+        "entrypoint": "skills/django-verification/SKILL.md",
+        "digest": "5e86521140e43393073249beb5156dfc5e1374cd36460a0ebdeeeb6f0b8b9a30"
+      },
+      {
+        "id": "skill:eval-harness",
+        "type": "skill",
+        "name": "eval-harness",
+        "description": "Formal evaluation framework for Claude Code sessions implementing eval-driven development (EDD) principles",
+        "path": "skills/eval-harness",
+        "entrypoint": "skills/eval-harness/SKILL.md",
+        "digest": "a33b70aff6dec4757f326bd835682ea92c64bacaceffe805195f9697a19bfe13"
+      },
+      {
+        "id": "skill:frontend-patterns",
+        "type": "skill",
+        "name": "frontend-patterns",
+        "description": "Frontend development patterns for React, Next.js, state management, performance optimization, and UI best practices.",
+        "path": "skills/frontend-patterns",
+        "entrypoint": "skills/frontend-patterns/SKILL.md",
+        "digest": "2111863313fc2c33c04ddc0be40f3a0c149672caf861920af62ee926f4f09def"
+      },
+      {
+        "id": "skill:golang-patterns",
+        "type": "skill",
+        "name": "golang-patterns",
+        "description": "Idiomatic Go patterns, best practices, and conventions for building robust, efficient, and maintainable Go applications.",
+        "path": "skills/golang-patterns",
+        "entrypoint": "skills/golang-patterns/SKILL.md",
+        "digest": "ebab533512f4a584c9430e977891268990a84f4986701c5171fa7ce0c982dc79"
+      },
+      {
+        "id": "skill:golang-testing",
+        "type": "skill",
+        "name": "golang-testing",
+        "description": "Go testing patterns including table-driven tests, subtests, benchmarks, fuzzing, and test coverage. Follows TDD methodology with idiomatic Go practices.",
+        "path": "skills/golang-testing",
+        "entrypoint": "skills/golang-testing/SKILL.md",
+        "digest": "084fc8ef63b82d1b0887798f9402d69815fe0608649aac9388f3c3e64755382e"
+      },
+      {
+        "id": "skill:iterative-retrieval",
+        "type": "skill",
+        "name": "iterative-retrieval",
+        "description": "Pattern for progressively refining context retrieval to solve the subagent context problem",
+        "path": "skills/iterative-retrieval",
+        "entrypoint": "skills/iterative-retrieval/SKILL.md",
+        "digest": "29841f04892e0a47ebbfedb76aba479283280547dc6f3746fd6f9479bf02a3dc"
+      },
+      {
+        "id": "skill:java-coding-standards",
+        "type": "skill",
+        "name": "java-coding-standards",
+        "description": "Java coding standards for Spring Boot services: naming, immutability, Optional usage, streams, exceptions, generics, and project layout.",
+        "path": "skills/java-coding-standards",
+        "entrypoint": "skills/java-coding-standards/SKILL.md",
+        "digest": "ba8d1743689b2182a24153087b43bafcf351d24f645589d9bd6bda08558e513f"
+      },
+      {
+        "id": "skill:jpa-patterns",
+        "type": "skill",
+        "name": "jpa-patterns",
+        "description": "JPA/Hibernate patterns for entity design, relationships, query optimization, transactions, auditing, indexing, pagination, and pooling in Spring Boot.",
+        "path": "skills/jpa-patterns",
+        "entrypoint": "skills/jpa-patterns/SKILL.md",
+        "digest": "cafaebe1c38e54d7d3162a6f4f3e9ab7b5017b8d46c008727b05013a50a24c6a"
+      },
+      {
+        "id": "skill:postgres-patterns",
+        "type": "skill",
+        "name": "postgres-patterns",
+        "description": "PostgreSQL database patterns for query optimization, schema design, indexing, and security. Based on Supabase best practices.",
+        "path": "skills/postgres-patterns",
+        "entrypoint": "skills/postgres-patterns/SKILL.md",
+        "digest": "9e5d2483055b590969422a1012a51fbf5c32a681f5f6b93a997eabc0661c292a"
+      },
+      {
+        "id": "skill:project-guidelines-example",
+        "type": "skill",
+        "name": "project-guidelines-example",
+        "description": null,
+        "path": "skills/project-guidelines-example",
+        "entrypoint": "skills/project-guidelines-example/SKILL.md",
+        "digest": "acce33671872c5b9f11060ee859c853079bc846d1efc7391f01b24eda4beaa25"
+      },
+      {
+        "id": "skill:python-patterns",
+        "type": "skill",
+        "name": "python-patterns",
+        "description": "Pythonic idioms, PEP 8 standards, type hints, and best practices for building robust, efficient, and maintainable Python applications.",
+        "path": "skills/python-patterns",
+        "entrypoint": "skills/python-patterns/SKILL.md",
+        "digest": "9db7a61bf1b6dd9667ef1268186ac82fd5e86eba18c6fd5869b3fa5ebb48c724"
+      },
+      {
+        "id": "skill:python-testing",
+        "type": "skill",
+        "name": "python-testing",
+        "description": "Python testing strategies using pytest, TDD methodology, fixtures, mocking, parametrization, and coverage requirements.",
+        "path": "skills/python-testing",
+        "entrypoint": "skills/python-testing/SKILL.md",
+        "digest": "dc4aa34e2f453c60c4e86be82e9d74ed02fde8c4d89437c28bc118f4492e8fb6"
+      },
+      {
+        "id": "skill:security-review",
+        "type": "skill",
+        "name": "security-review",
+        "description": "Use this skill when adding authentication, handling user input, working with secrets, creating API endpoints, or implementing payment/sensitive features. Provides comprehensive security checklist and patterns.",
+        "path": "skills/security-review",
+        "entrypoint": "skills/security-review/SKILL.md",
+        "digest": "21a19ea180f76ef3ed07be557824a9521633e6442fe6a34fb30ef855f3a6480a"
+      },
+      {
+        "id": "skill:springboot-patterns",
+        "type": "skill",
+        "name": "springboot-patterns",
+        "description": "Spring Boot architecture patterns, REST API design, layered services, data access, caching, async processing, and logging. Use for Java Spring Boot backend work.",
+        "path": "skills/springboot-patterns",
+        "entrypoint": "skills/springboot-patterns/SKILL.md",
+        "digest": "bc5f5b071a3b240994cca615dfe09d538277792c26d151e5431f033293e16bce"
+      },
+      {
+        "id": "skill:springboot-security",
+        "type": "skill",
+        "name": "springboot-security",
+        "description": "Spring Security best practices for authn/authz, validation, CSRF, secrets, headers, rate limiting, and dependency security in Java Spring Boot services.",
+        "path": "skills/springboot-security",
+        "entrypoint": "skills/springboot-security/SKILL.md",
+        "digest": "9381f4f7c01fc66dd23ea78b841a0d2e18543b9a9b5b0ea8a9db5e115ad85e30"
+      },
+      {
+        "id": "skill:springboot-tdd",
+        "type": "skill",
+        "name": "springboot-tdd",
+        "description": "Test-driven development for Spring Boot using JUnit 5, Mockito, MockMvc, Testcontainers, and JaCoCo. Use when adding features, fixing bugs, or refactoring.",
+        "path": "skills/springboot-tdd",
+        "entrypoint": "skills/springboot-tdd/SKILL.md",
+        "digest": "460410c06c3109919974ae773e05c17c5ce68157ce287b18438ba8a48346f508"
+      },
+      {
+        "id": "skill:springboot-verification",
+        "type": "skill",
+        "name": "springboot-verification",
+        "description": "Verification loop for Spring Boot projects: build, static analysis, tests with coverage, security scans, and diff review before release or PR.",
+        "path": "skills/springboot-verification",
+        "entrypoint": "skills/springboot-verification/SKILL.md",
+        "digest": "d1978dcf8fd82269eb445a12887ee9557006f96a8b7338c51b38809a7c247508"
+      },
+      {
+        "id": "skill:strategic-compact",
+        "type": "skill",
+        "name": "strategic-compact",
+        "description": "Suggests manual context compaction at logical intervals to preserve context through task phases rather than arbitrary auto-compaction.",
+        "path": "skills/strategic-compact",
+        "entrypoint": "skills/strategic-compact/SKILL.md",
+        "digest": "b6cbdb444c20cd0c05d7c604c0356b150680ee4c429b974e52e52b1bad8db292"
+      },
+      {
+        "id": "skill:tdd-workflow",
+        "type": "skill",
+        "name": "tdd-workflow",
+        "description": "Use this skill when writing new features, fixing bugs, or refactoring code. Enforces test-driven development with 80%+ coverage including unit, integration, and E2E tests.",
+        "path": "skills/tdd-workflow",
+        "entrypoint": "skills/tdd-workflow/SKILL.md",
+        "digest": "6d6dfce5eb430d283514816ea178d91c63665c841835bd41bc0d45411ee91d60"
+      },
+      {
+        "id": "skill:verification-loop",
+        "type": "skill",
+        "name": "verification-loop",
+        "description": null,
+        "path": "skills/verification-loop",
+        "entrypoint": "skills/verification-loop/SKILL.md",
+        "digest": "3522b2f0872bca0ed33be6d8a5dc216f40fe3edef3eb1b32eddd5873ac007aa8"
+      }
+    ],
+    "rules": [
+      {
+        "id": "rule:common/agents",
+        "type": "rule",
+        "name": "Agent Orchestration",
+        "description": null,
+        "path": "rules/common/agents.md",
+        "digest": "84acffb05e73de7264c89e6b302e653140a3a5b98897601c14edaf0b11065e93"
+      },
+      {
+        "id": "rule:common/coding-style",
+        "type": "rule",
+        "name": "Coding Style",
+        "description": null,
+        "path": "rules/common/coding-style.md",
+        "digest": "52d1da9e124bfbef9f65f0401ec76b48f8e6293c8971969303efd4d7292a6a90"
+      },
+      {
+        "id": "rule:common/git-workflow",
+        "type": "rule",
+        "name": "Git Workflow",
+        "description": null,
+        "path": "rules/common/git-workflow.md",
+        "digest": "d459aa29c87c357e991999ce6e6919cea5ec52b802fa1c32c267070208141a69"
+      },
+      {
+        "id": "rule:common/hooks",
+        "type": "rule",
+        "name": "Hooks System",
+        "description": null,
+        "path": "rules/common/hooks.md",
+        "digest": "b3bfb0ed86bfa71d29c076de5363656265218aa5fb8abd26edf285e652a2b234"
+      },
+      {
+        "id": "rule:common/patterns",
+        "type": "rule",
+        "name": "Common Patterns",
+        "description": null,
+        "path": "rules/common/patterns.md",
+        "digest": "8a32c0552c8b309e961ef3f68a56ae84b0b1d411c17f23675ec26b685dea5e9a"
+      },
+      {
+        "id": "rule:common/performance",
+        "type": "rule",
+        "name": "Performance Optimization",
+        "description": null,
+        "path": "rules/common/performance.md",
+        "digest": "029e80002d9ade1328cfd52b8799448257da3b614a29dc2ead888c5d9b5478ea"
+      },
+      {
+        "id": "rule:common/security",
+        "type": "rule",
+        "name": "Security Guidelines",
+        "description": null,
+        "path": "rules/common/security.md",
+        "digest": "58f0acc56331b8d554dd036b8a1d5b2305a908e3960ff1e2d7e55223d5918bc3"
+      },
+      {
+        "id": "rule:common/testing",
+        "type": "rule",
+        "name": "Testing Requirements",
+        "description": null,
+        "path": "rules/common/testing.md",
+        "digest": "1fe96e1188217bcf35acca3459d9afe00dcfb84bc938bba5abf2c4d8e0d9b4a9"
+      },
+      {
+        "id": "rule:golang/coding-style",
+        "type": "rule",
+        "name": "Go Coding Style",
+        "description": null,
+        "path": "rules/golang/coding-style.md",
+        "digest": "2264e2c45adea10edd6be40ed99beda634ef7ddef0cf7809141c8f63c2b256a2"
+      },
+      {
+        "id": "rule:golang/hooks",
+        "type": "rule",
+        "name": "Go Hooks",
+        "description": null,
+        "path": "rules/golang/hooks.md",
+        "digest": "22eaddf711349fc36287b9d581da4a6ea9faf561974ff738d9d3b1643b425a95"
+      },
+      {
+        "id": "rule:golang/patterns",
+        "type": "rule",
+        "name": "Go Patterns",
+        "description": null,
+        "path": "rules/golang/patterns.md",
+        "digest": "49b5804bd2a472608600815a3d2deaef7e630694b8319937ca4eae19ad311f43"
+      },
+      {
+        "id": "rule:golang/security",
+        "type": "rule",
+        "name": "Go Security",
+        "description": null,
+        "path": "rules/golang/security.md",
+        "digest": "498a87b519ddc7f8ab10be0e1678c920d469bf20a5677f3e87abf25ec2b0d82a"
+      },
+      {
+        "id": "rule:golang/testing",
+        "type": "rule",
+        "name": "Go Testing",
+        "description": null,
+        "path": "rules/golang/testing.md",
+        "digest": "31a9ee8c62c9ed219c1b8a570bc1e50290bea0b1bc7b81871ff30f3322064e4c"
+      },
+      {
+        "id": "rule:python/coding-style",
+        "type": "rule",
+        "name": "Python Coding Style",
+        "description": null,
+        "path": "rules/python/coding-style.md",
+        "digest": "d97a28c24075c21eb22d1fc09bb00101b065ecf375fa9fccdc2d96161a773e07"
+      },
+      {
+        "id": "rule:python/hooks",
+        "type": "rule",
+        "name": "Python Hooks",
+        "description": null,
+        "path": "rules/python/hooks.md",
+        "digest": "c5e39ea05b624dc851e5b50735c1c16ede4b6a8ac074348421703f7b1187cef9"
+      },
+      {
+        "id": "rule:python/patterns",
+        "type": "rule",
+        "name": "Python Patterns",
+        "description": null,
+        "path": "rules/python/patterns.md",
+        "digest": "4c890c6e171bfad2af79c6c5fc59f3a52f75df8b97e6e09cbea05da67daa19d7"
+      },
+      {
+        "id": "rule:python/security",
+        "type": "rule",
+        "name": "Python Security",
+        "description": null,
+        "path": "rules/python/security.md",
+        "digest": "1aa820a43ff5ae64a15944ae90499d096d6f003ae4a52ab50d398c3b4de8e5c1"
+      },
+      {
+        "id": "rule:python/testing",
+        "type": "rule",
+        "name": "Python Testing",
+        "description": null,
+        "path": "rules/python/testing.md",
+        "digest": "26e38df0b96f6b47ff9e7d7731d3fc9c912b323985e00ac697c27f20c61f7c67"
+      },
+      {
+        "id": "rule:README",
+        "type": "rule",
+        "name": "Rules",
+        "description": null,
+        "path": "rules/README.md",
+        "digest": "68a401cc24c91b29f9722b9a80be782be7ad15d094f12bc41a391af45033fada"
+      },
+      {
+        "id": "rule:typescript/coding-style",
+        "type": "rule",
+        "name": "TypeScript/JavaScript Coding Style",
+        "description": null,
+        "path": "rules/typescript/coding-style.md",
+        "digest": "a044a29c7c925fd701af8ef6dc1cf2e6a6cb0fdaa947892b087dc9815cf19e9a"
+      },
+      {
+        "id": "rule:typescript/hooks",
+        "type": "rule",
+        "name": "TypeScript/JavaScript Hooks",
+        "description": null,
+        "path": "rules/typescript/hooks.md",
+        "digest": "d74bfc0f630411a695679fe39f13f1bc18963a8af179f01342e43799a9c44f02"
+      },
+      {
+        "id": "rule:typescript/patterns",
+        "type": "rule",
+        "name": "TypeScript/JavaScript Patterns",
+        "description": null,
+        "path": "rules/typescript/patterns.md",
+        "digest": "0df03796612d20e298f63fdf2a1284101cbcd037aee08df5ab32fe32fcb71372"
+      },
+      {
+        "id": "rule:typescript/security",
+        "type": "rule",
+        "name": "TypeScript/JavaScript Security",
+        "description": null,
+        "path": "rules/typescript/security.md",
+        "digest": "e90ed8521ddcc072f03e9c93fff8e4000c967034b42cb362cbb63fc87fa633c0"
+      },
+      {
+        "id": "rule:typescript/testing",
+        "type": "rule",
+        "name": "TypeScript/JavaScript Testing",
+        "description": null,
+        "path": "rules/typescript/testing.md",
+        "digest": "26363f53e5a690de37fb04ef8c9a5f3b27b60ee1382c189aba6e7922859e82e8"
+      }
+    ]
+  }
+}

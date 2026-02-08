@@ -39,6 +39,8 @@
     "ecc:build-kernel": "cargo build --release --manifest-path crates/ecc-kernel/Cargo.toml",
     "ecc:install-kernel": "node scripts/ecc/install-kernel.js",
     "postinstall": "node scripts/ecc/install-kernel.js",
+    "studio:build-registry": "node scripts/studio/build-registry.js",
+    "studio:serve": "node scripts/studio/serve.js",
     "test": "node tests/run-all.js"
   },
   "devDependencies": {

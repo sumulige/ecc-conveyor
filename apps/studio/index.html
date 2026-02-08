@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <title>Paradigm Studio | ECC Conveyor</title>
+    <meta
+      name="description"
+      content="Paradigm Studio: award-grade, composable AI-assisted coding paradigms. Explore packs/modules, visualize dependencies, compare versions, and learn delivery workflows."
+    />
+
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="topbar">
+      <div class="topbar__inner">
+        <div class="brand" aria-label="Paradigm Studio">
+          <span class="brand__mark" aria-hidden="true"></span>
+          <span class="brand__word">Paradigm Studio</span>
+          <span class="brand__sub">ECC Conveyor</span>
+        </div>
+
+        <nav class="nav" aria-label="Primary navigation">
+          <a class="nav__link" href="#/explore" data-route="explore">Explore</a>
+          <a class="nav__link" href="#/workflows" data-route="workflows">Workflows</a>
+          <a class="nav__link" href="#/graph" data-route="graph">Graph</a>
+          <a class="nav__link" href="#/compare" data-route="compare">Compare</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="view view--active" data-view="explore" aria-label="Explore">
+        <section class="hero" aria-label="Hero">
+          <div class="hero__grid">
+            <div class="hero__copy">
+              <p class="kicker">
+                AI-assisted coding, but engineered like software.
+              </p>
+              <h1 class="h1">
+                Build with an AI.
+                <span class="h1__accent">Keep the rigor.</span>
+              </h1>
+              <p class="lede">
+                A composable system of agents, skills, commands, hooks, and rules that turns
+                “chatting” into repeatable delivery.
+              </p>
+
+              <div class="cta">
+                <a class="btn btn--primary" href="#/explore" data-route="explore">Explore packs</a>
+                <a class="btn btn--ghost" href="#/workflows" data-route="workflows">See workflows</a>
+              </div>
+
+              <div class="meta">
+                <div class="meta__item">
+                  <span class="meta__label">Design goal</span>
+                  <span class="meta__value">Zero-coupling, max composition</span>
+                </div>
+                <div class="meta__item">
+                  <span class="meta__label">Engineering goal</span>
+                  <span class="meta__value">Install, evolve, verify</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="hero__terminal" aria-label="Terminal demo">
+              <div class="term">
+                <div class="term__bar">
+                  <span class="dot dot--r" aria-hidden="true"></span>
+                  <span class="dot dot--y" aria-hidden="true"></span>
+                  <span class="dot dot--g" aria-hidden="true"></span>
+                  <span class="term__title">Session: paradigm-studio</span>
+                </div>
+                <div class="term__body">
+                  <div class="term__line">
+                    <span class="term__prompt">›</span>
+                    <span class="term__cmd" id="termCmd"></span>
+                    <span class="term__caret" aria-hidden="true"></span>
+                  </div>
+                  <div class="term__out" id="termOut" aria-live="polite"></div>
+                </div>
+                <div class="term__foot">
+                  <span class="pill">Plan</span>
+                  <span class="pill">TDD</span>
+                  <span class="pill">Verify</span>
+                  <span class="pill">Evolve</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" aria-label="Packs">
+          <div class="section__head section__head--split">
+            <div>
+              <h2 class="h2">Explore (Packs)</h2>
+              <p class="sub">
+                Packs are plug-in bundles of modules with a single purpose. Install what you need.
+                Leave the rest behind.
+              </p>
+            </div>
+            <div class="stats" id="stats"></div>
+          </div>
+          <div class="cards" id="packsGrid" aria-live="polite"></div>
+        </section>
+
+        <section class="section" aria-label="Module explorer">
+          <div class="section__head">
+            <h2 class="h2">Module Explorer</h2>
+            <p class="sub">
+              Search across agents, commands, skills, and rules. Everything has a stable ID and a digest.
+            </p>
+          </div>
+
+          <div class="finder">
+            <label class="finder__label" for="q">Search</label>
+            <input
+              id="q"
+              class="finder__input"
+              type="search"
+              placeholder="Try: tdd, security, compact, multi, postgres…"
+              autocomplete="off"
+            />
+            <div class="finder__hint" id="hint"></div>
+          </div>
+
+          <div class="list" id="moduleList" aria-live="polite"></div>
+        </section>
+
+        <section class="section" aria-label="Install">
+          <div class="section__head">
+            <h2 class="h2">Install</h2>
+            <p class="sub">
+              Studio is read-only. The paradigms are meant to be installed and evolved inside your own environment.
+            </p>
+          </div>
+
+          <div class="install">
+            <div class="install__col">
+              <h3 class="h3">ECC CLI (npm)</h3>
+              <pre class="code"><code># Project-local (recommended)
+npm install -D ecc-conveyor
+npx ecc doctor
+
+# Global
+npm install -g ecc-conveyor
+ecc doctor</code></pre>
+            </div>
+
+            <div class="install__col">
+              <h3 class="h3">Rules (Manual)</h3>
+              <pre class="code"><code># Required (language-agnostic)
+cp -r rules/common/* ~/.claude/rules/
+
+# Optional (choose your stack)
+cp -r rules/typescript/* ~/.claude/rules/
+cp -r rules/python/* ~/.claude/rules/
+cp -r rules/golang/* ~/.claude/rules/</code></pre>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="view" data-view="workflows" aria-label="Workflows">
+        <section class="section">
+          <div class="section__head">
+            <h2 class="h2">Workflows</h2>
+            <p class="sub">
+              Interactive walkthroughs: not “chat logs”, but engineered delivery flows.
+              Each step references the modules that make it repeatable.
+            </p>
+          </div>
+
+          <div class="wf">
+            <div class="wf__rail">
+              <div class="wf__title">Choose a workflow</div>
+              <div class="wf__list" id="wfList" aria-live="polite"></div>
+            </div>
+            <div class="wf__panel">
+              <div class="wf__header" id="wfHeader"></div>
+              <div class="wf__steps" id="wfSteps"></div>
+              <div class="wf__artifacts" id="wfArtifacts"></div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="view" data-view="graph" aria-label="Dependency graph">
+        <section class="section">
+          <div class="section__head section__head--split">
+            <div>
+              <h2 class="h2">Graph</h2>
+              <p class="sub">
+                A deterministic bipartite view: packs on the left, modules on the right.
+                Click to highlight ownership and reuse.
+              </p>
+            </div>
+            <div class="finder finder--compact">
+              <label class="finder__label" for="graphQ">Filter</label>
+              <input
+                id="graphQ"
+                class="finder__input"
+                type="search"
+                placeholder="Filter packs/modules…"
+                autocomplete="off"
+              />
+            </div>
+          </div>
+
+          <div class="graph">
+            <div class="graph__meta" id="graphMeta"></div>
+            <div class="graph__wrap" id="graphWrap" aria-live="polite"></div>
+          </div>
+        </section>
+      </section>
+
+      <section class="view" data-view="compare" aria-label="Version compare">
+        <section class="section">
+          <div class="section__head">
+            <h2 class="h2">Compare</h2>
+            <p class="sub">
+              Diff two tags by digest. No heuristics: added, removed, changed.
+              Works on public GitHub tags (rate-limited, cached locally).
+            </p>
+          </div>
+
+          <div class="cmp">
+            <div class="cmp__bar">
+              <div class="cmp__field">
+                <div class="cmp__label">Base tag</div>
+                <select class="cmp__select" id="cmpBase"></select>
+                <input class="cmp__input" id="cmpBaseManual" placeholder="or type a tag (e.g. v1.4.8)" />
+              </div>
+              <div class="cmp__field">
+                <div class="cmp__label">Head tag</div>
+                <select class="cmp__select" id="cmpHead"></select>
+                <input class="cmp__input" id="cmpHeadManual" placeholder="or type a tag (e.g. v1.5.0)" />
+              </div>
+              <div class="cmp__actions">
+                <button class="btn btn--primary" id="cmpRun" type="button">Compare</button>
+                <button class="btn btn--ghost" id="cmpSwap" type="button">Swap</button>
+              </div>
+            </div>
+
+            <div class="cmp__status" id="cmpStatus"></div>
+            <div class="cmp__grid" id="cmpGrid" aria-live="polite"></div>
+          </div>
+        </section>
+      </section>
+
+      <footer class="footer">
+        <div class="footer__inner">
+          <div class="footer__left">
+            <div class="brand brand--tiny" aria-label="Paradigm Studio">
+              <span class="brand__mark" aria-hidden="true"></span>
+              <span class="brand__word">Paradigm Studio</span>
+            </div>
+            <p class="footer__note">
+              Built from ECC Conveyor. Generated data: <span id="genAt"></span>
+            </p>
+          </div>
+          <div class="footer__right">
+            <a class="footer__link" id="repoLink" href="https://github.com/sumulige/ecc-conveyor" title="Repo">Repo</a>
+            <span class="footer__sep" aria-hidden="true">•</span>
+            <a class="footer__link" href="#/explore">Back to top</a>
+          </div>
+        </div>
+      </footer>
+    </main>
+
+    <dialog class="modal" id="modal" aria-label="Module details">
+      <div class="modal__inner">
+        <button class="modal__close" id="closeModal" type="button" aria-label="Close">
+          Close
+        </button>
+        <div class="modal__content" id="modalContent"></div>
+      </div>
+    </dialog>
+
+    <script src="./vendor/marked/marked.umd.js"></script>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

@@ -10,6 +10,8 @@ Thanks for wanting to contribute! This repo is a community resource for Claude C
 - [Contributing Agents](#contributing-agents)
 - [Contributing Hooks](#contributing-hooks)
 - [Contributing Commands](#contributing-commands)
+- [Contributing Packs](#contributing-packs)
+- [Paradigm Studio and Registry](#paradigm-studio-and-registry)
 - [Pull Request Process](#pull-request-process)
 
 ---
@@ -344,6 +346,55 @@ What the user receives.
 | `code-review.md` | Review code changes |
 | `tdd.md` | TDD workflow |
 | `e2e.md` | E2E testing |
+
+---
+
+## Contributing Packs
+
+Packs are curated bundles of modules that work well together. Each pack should have a single purpose and a clear audience.
+
+### File Location
+
+```
+packs/<pack-id>.json
+```
+
+### Pack Format
+
+- Required fields: `id`, `name`, `description`, `modules`
+- Optional fields: `tags`
+- `modules[]` must reference existing module IDs (e.g. `command:plan`, `agent:planner`)
+
+### Checklist
+
+- [ ] Pack purpose is clear and non-overlapping with existing packs
+- [ ] `modules[]` is minimal (only what the pack needs)
+- [ ] Runs locally: `node scripts/ci/validate-packs.js`
+
+---
+
+## Paradigm Studio and Registry
+
+Paradigm Studio (`apps/studio/`) is a static site powered by a tracked registry file.
+
+### Registry: Single Source of Truth
+
+- Tracked registry: `apps/studio/data/registry.json`
+- Generator (deterministic): `npm run studio:build-registry`
+- CI drift check: `node scripts/ci/validate-studio-registry.js`
+
+If you change any of these:
+- `agents/`, `commands/`, `skills/`, `rules/`
+- `packs/`
+
+You must also regenerate and commit the registry.
+
+### Breaking Changes (Avoid or Explicitly Version)
+
+Breaking changes include:
+- Removing or renaming a module ID
+- Changing the ID derivation rules (frontmatter/path conventions)
+- Bumping `registry.version` (requires compat fixtures + UI loader updates)
 
 ---
 
