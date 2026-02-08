@@ -25,6 +25,12 @@
 
 ---
 
+## Paradigm Studio
+
+在线 Studio（packs/modules 浏览、工作流演示、依赖图、版本对比）：
+
+- <https://sumulige.github.io/ecc-conveyor/>
+
 ## 指南
 
 这个仓库只包含原始代码。指南解释了一切。

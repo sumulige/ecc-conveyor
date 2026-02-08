@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "generatedAt": "2026-02-07T00:00:00.000Z",
+  "repo": {
+    "owner": "sumulige",
+    "name": "ecc-conveyor",
+    "defaultBranch": "main",
+    "sha": "deadbeef",
+    "tag": "v0.0.0"
+  },
+  "stats": {
+    "agents": 1,
+    "commands": 1,
+    "skills": 1,
+    "rules": 1,
+    "packs": 1
+  },
+  "packs": [
+    {
+      "id": "blueprint",
+      "name": "Blueprint",
+      "description": "Turn vague intent into an executable plan.",
+      "modules": ["command:plan", "agent:planner", "skill:tdd-workflow", "rule:common/quality"],
+      "tags": ["planning"],
+      "path": "packs/blueprint.json",
+      "digest": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ],
+  "modules": {
+    "agents": [
+      {
+        "id": "agent:planner",
+        "type": "agent",
+        "name": "planner",
+        "description": "Turn intent into a plan.",
+        "model": null,
+        "tools": null,
+        "path": "agents/planner.md",
+        "digest": "1111111111111111111111111111111111111111111111111111111111111111"
+      }
+    ],
+    "commands": [
+      {
+        "id": "command:plan",
+        "type": "command",
+        "name": "plan",
+        "description": "Create a plan.",
+        "path": "commands/plan.md",
+        "digest": "2222222222222222222222222222222222222222222222222222222222222222"
+      }
+    ],
+    "skills": [
+      {
+        "id": "skill:tdd-workflow",
+        "type": "skill",
+        "name": "tdd-workflow",
+        "description": "Test-driven delivery.",
+        "path": "skills/tdd-workflow",
+        "entrypoint": "skills/tdd-workflow/SKILL.md",
+        "digest": "3333333333333333333333333333333333333333333333333333333333333333"
+      }
+    ],
+    "rules": [
+      {
+        "id": "rule:common/quality",
+        "type": "rule",
+        "name": "Quality Gate",
+        "description": null,
+        "path": "rules/common/quality.md",
+        "digest": "4444444444444444444444444444444444444444444444444444444444444444"
+      }
+    ]
+  }
+}
+

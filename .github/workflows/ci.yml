@@ -176,6 +176,14 @@ jobs:
         run: node scripts/ci/validate-rules.js
         continue-on-error: false
 
+      - name: Validate packs
+        run: node scripts/ci/validate-packs.js
+        continue-on-error: false
+
+      - name: Validate Studio registry
+        run: node scripts/ci/validate-studio-registry.js
+        continue-on-error: false
+
   security:
     name: Security Scan
     runs-on: ubuntu-latest

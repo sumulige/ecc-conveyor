@@ -33,6 +33,12 @@ Production-ready agents, skills, hooks, commands, rules, and MCP configurations 
 
 ---
 
+## Paradigm Studio
+
+Explore the live Studio (packs/modules explorer, workflows, dependency graph, and tag-to-tag comparisons):
+
+- <https://sumulige.github.io/ecc-conveyor/>
+
 ## The Guides
 
 This repo is the raw code only. The guides explain everything.

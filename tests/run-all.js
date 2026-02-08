@@ -23,7 +23,10 @@ const testFiles = [
   'ecc/plan.test.js',
   'ecc/exec.test.js',
   'ecc/verify.test.js',
-  'ecc/run.e2e.test.js'
+  'ecc/run.e2e.test.js',
+  'studio/registry.test.js',
+  'studio/version-diff.test.js',
+  'studio/registry-compat.test.js'
 ];
 
 console.log('╔══════════════════════════════════════════════════════════╗');

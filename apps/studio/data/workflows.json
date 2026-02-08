@@ -1,0 +1,142 @@
+{
+  "version": 1,
+  "workflows": [
+    {
+      "id": "paradigm-workflows",
+      "title": "Paradigm Workflows",
+      "summary": "A composable loop: Plan \u2192 TDD \u2192 Verify \u2192 Evolve. Each step maps to a pack and its modules.",
+      "steps": [
+        {
+          "title": "Plan (Blueprint)",
+          "description": "Turn vague intent into a decision-complete plan: requirements, interfaces, risks, and an incremental path to shipping.",
+          "modules": ["command:plan", "command:multi-plan", "agent:planner", "agent:architect"],
+          "artifacts": [
+            {
+              "title": "plan.md (example output)",
+              "kind": "text",
+              "path": ".ecc/runs/<runId>/plan.md",
+              "open": true,
+              "body": "# Plan\\n\\n- Restate intent\\n- Identify risks\\n- Define interfaces/contracts\\n- Split into independently verifiable steps\\n\\nDeliverable: plan.json + ownership boundaries"
+            }
+          ]
+        },
+        {
+          "title": "Implement (Forge)",
+          "description": "Ship with confidence: write failing tests, implement the smallest change, and refactor with coverage discipline.",
+          "modules": ["command:tdd", "command:test-coverage", "agent:tdd-guide", "skill:tdd-workflow"],
+          "artifacts": [
+            {
+              "title": "tdd checklist (example)",
+              "kind": "text",
+              "body": "- write failing tests\\n- implement minimal change\\n- refactor\\n- keep feedback loops tight"
+            }
+          ]
+        },
+        {
+          "title": "Verify (Proof)",
+          "description": "Earn trust: run verification loops as a gate (lint/test/build), and capture evidence for reviewers and CI.",
+          "modules": ["command:verify", "command:checkpoint", "skill:verification-loop"],
+          "artifacts": [
+            {
+              "title": "verify/summary.json (example)",
+              "kind": "json",
+              "path": ".ecc/runs/<runId>/verify/summary.json",
+              "body": "{\\n  \\\"version\\\": 1,\\n  \\\"ok\\\": true,\\n  \\\"commands\\\": [\\n    { \\\"name\\\": \\\"lint\\\", \\\"ok\\\": true },\\n    { \\\"name\\\": \\\"test\\\", \\\"ok\\\": true },\\n    { \\\"name\\\": \\\"build\\\", \\\"ok\\\": true }\\n  ]\\n}"
+            }
+          ]
+        },
+        {
+          "title": "Evolve (Instinct)",
+          "description": "Extract patterns from real work: promote stable moves into reusable modules and compounding workflows.",
+          "modules": ["command:evolve", "command:learn", "skill:continuous-learning"],
+          "artifacts": [
+            {
+              "title": "promotion note (example)",
+              "kind": "text",
+              "body": "Observed pattern: consistent error-handling scaffolding.\\nAction: promote into a shared skill + add to Forge pack."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ecc-delivery-flow",
+      "title": "ECC Delivery Flow",
+      "summary": "An auditable delivery engine: init \u2192 doctor \u2192 plan \u2192 exec \u2192 verify \u2192 run. Worktree isolation + patch evidence.",
+      "steps": [
+        {
+          "title": "init",
+          "description": "Bootstrap .ecc/ in a repo (config + locks). This is the minimum to make delivery repeatable.",
+          "modules": [],
+          "artifacts": [
+            {
+              "title": ".ecc/ecc.json (example)",
+              "kind": "json",
+              "path": ".ecc/ecc.json",
+              "open": true,
+              "body": "{\\n  \\\"version\\\": 1,\\n  \\\"backend\\\": \\\"codex\\\",\\n  \\\"packs\\\": [\\\"blueprint\\\", \\\"forge\\\"],\\n  \\\"verify\\\": { \\\"mode\\\": \\\"auto\\\" },\\n  \\\"createdAt\\\": \\\"2026-02-07T00:00:00.000Z\\\"\\n}"
+            }
+          ]
+        },
+        {
+          "title": "plan",
+          "description": "Produce a task graph with explicit ownership boundaries (allowedPathPrefixes). No file writes yet; just structure.",
+          "modules": ["command:plan", "agent:architect"],
+          "artifacts": [
+            {
+              "title": "plan.json (example)",
+              "kind": "json",
+              "path": ".ecc/runs/<runId>/plan.json",
+              "body": "{\\n  \\\"version\\\": 1,\\n  \\\"intent\\\": \\\"demo\\\",\\n  \\\"tasks\\\": [\\n    {\\n      \\\"id\\\": \\\"t1\\\",\\n      \\\"title\\\": \\\"Add README badge\\\",\\n      \\\"kind\\\": \\\"patch\\\",\\n      \\\"dependsOn\\\": [],\\n      \\\"allowedPathPrefixes\\\": [\\\"README.md\\\"],\\n      \\\"prompt\\\": \\\"Add a badge\\\"\\n    }\\n  ]\\n}"
+            }
+          ]
+        },
+        {
+          "title": "exec",
+          "description": "Generate unified diffs per task, run ownership checks, and apply patches inside an external worktree.",
+          "modules": ["command:multi-execute", "command:build-fix"],
+          "artifacts": [
+            {
+              "title": "patches/t1.diff (example)",
+              "kind": "diff",
+              "path": ".ecc/runs/<runId>/patches/t1.diff",
+              "body": "diff --git a/README.md b/README.md\\nindex 0000000..1111111 100644\\n--- a/README.md\\n+++ b/README.md\\n@@ -1,3 +1,4 @@\\n # ECC Conveyor\\n+\\n+![status](https://img.shields.io/badge/ecc-conveyor-green)"
+            },
+            {
+              "title": "apply/applied.json (example)",
+              "kind": "json",
+              "path": ".ecc/runs/<runId>/apply/applied.json",
+              "body": "{\\n  \\\"version\\\": 1,\\n  \\\"ok\\\": true,\\n  \\\"tasks\\\": [ { \\\"id\\\": \\\"t1\\\", \\\"ok\\\": true } ]\\n}"
+            }
+          ]
+        },
+        {
+          "title": "verify",
+          "description": "Run verification commands (auto or manual), store outputs, and return a CI-friendly exit code.",
+          "modules": ["command:verify", "skill:verification-loop"],
+          "artifacts": [
+            {
+              "title": "verify/summary.json (example)",
+              "kind": "json",
+              "path": ".ecc/runs/<runId>/verify/summary.json",
+              "body": "{\\n  \\\"version\\\": 1,\\n  \\\"ok\\\": true,\\n  \\\"commands\\\": [ { \\\"name\\\": \\\"test\\\", \\\"ok\\\": true, \\\"exitCode\\\": 0 } ]\\n}"
+            }
+          ]
+        },
+        {
+          "title": "run",
+          "description": "A thin orchestrator: plan \u2192 exec \u2192 verify. Every step emits evidence so review is frictionless.",
+          "modules": ["command:orchestrate"],
+          "artifacts": [
+            {
+              "title": "runs/<runId>/ (evidence layout)",
+              "kind": "text",
+              "body": ".ecc/runs/<runId>/\\n  run.json\\n  plan.json\\n  patches/\\n    <taskId>.diff\\n  apply/\\n    applied.json\\n  verify/\\n    summary.json\\n    <cmd>.txt\\n  report.md"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
